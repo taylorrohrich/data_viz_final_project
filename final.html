@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Final Project</title>
+
+    <style></style>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      // variables and scripts
+      let data; // to hold the data
+      let viz;
+
+      // function to get the data from file
+      getData = () => {
+        print("hi");
+        d3.csv("data/parsed.csv").then((d) => {
+          print("hi");
+          data = d;
+          print(d);
+          draw(data);
+        });
+      };
+
+      // some global variables
+      let vizWidth;
+      let baseline;
+
+      toNum = (text) => Number(text.replace(/,/g, ""));
+      rFromArea = (area) => Math.sqrt(toNum(area) / Math.PI);
+
+      // draw things
+      draw = (data) => {
+        // setup the viz
+        viz = d3.select("#viz");
+        vizWidth = Number(viz.attr("width"));
+        vizHeight = Number(viz.attr("height"));
+
+        baseline = vizHeight - 150; // the 0 line to work up from
+
+        scaleLon = d3
+          .scaleLinear() // scale the X dimension
+          .domain([-175, -65])
+          .range([0, vizWidth]);
+
+        scaleHeight = d3
+          .scaleLinear() // scale the Y dimension
+          .domain([0, 30000000])
+          .range([baseline, 0]);
+
+        rScale = 0.03;
+
+        // now draw the circles
+        circles = viz.selectAll("circle");
+      };
+
+      // some interface scripts
+      dimAll = () => circles.style("opacity", "0.02");
+      showAll = () => circles.style("opacity", "");
+
+      filter = (field, value) => {
+        dimAll();
+        circles.filter((d) => d[field] == value).style("opacity", "");
+      };
+
+      filterValue = (field, value) => {
+        dimAll();
+        circles.filter((d) => toNum(d[field]) > value).style("opacity", "");
+      };
+
+      highlight = (evt, d) => {
+        thisElem = evt.currentTarget;
+        d3.select(thisElem)
+          .style("stroke", "yellow")
+          .style("stroke-width", "2");
+        d3.select("#info")
+          .text(d["Plant name"])
+          .style("top", evt.y + "px")
+          .style("left", evt.x + "px")
+          .style("visibility", "visible");
+        //d3.select("#plantName").attr("x",thisElem.getAttribute("cx")).attr("y",thisElem.getAttribute("cy")).text(d["Plant name"]);
+      };
+
+      unhighlight = (evt) => {
+        d3.select(evt.currentTarget)
+          .style("stroke", "")
+          .style("stroke-width", "");
+        d3.select("#info").style("visibility", "hidden");
+      };
+    </script>
+  </head>
+  <body onload="getData()">
+    <svg id="viz" width="1000" height="1000">
+      <text id="plantName"></text>
+    </svg>
+  </body>
+</html>
