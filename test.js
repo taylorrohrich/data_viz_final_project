@@ -16,4 +16,4 @@ const getAnchorPoints= ()=>{
 }
 
 radius = 10
-anchorPoints = getAnchorPoints.map(angle=>getCoordinates(angle,radius))
+anchorPoints = getAnchorPoints().map(angle=>getCoordinates(angle,radius))

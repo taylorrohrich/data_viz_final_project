@@ -480,11 +480,13 @@
       var selectedDateIndex = 0;
       var selectedDates = [];
       var simulation;
+      var t;
       width = 1500;
       height = 1500;
       baselineX = width / 2;
       baselineY = height / 2;
       ringRadius = baselineX * 0.8;
+      increment = 30;
       sortByDateAscending = (a, b) => {
         // Dates will be cast to numbers automagically:
         return a.dateObj - b.dateObj;
@@ -534,13 +536,15 @@
         return anchorPoints;
       };
       anchorPointCoords = getAnchorPoints()
-        .map((angle) => getCoordinates(angle, baselineX * 0.8))
+        .map((angle) => getCoordinates(angle, ringRadius))
         .map((coords) => [baselineX + coords[0], baselineY - coords[1]]);
       getSize = (point) => {
-        if (point.isNull) return 1;
-        return 5 + Math.sqrt(Number(point.new_cases_smoothed_per_million));
+        if (point?.isNull || selectedDateIndex == 0) return 1;
+        return (
+          5 + (Math.sqrt(Number(point.new_cases_smoothed_per_million)) || 0)
+        );
       };
-      getOpacity = (point) => (!point.isNull ? 1 : 0.1);
+      getOpacity = (point) => (!point?.isNull ? 1 : 0.1);
       getForceCenter = (point) => {
         let pi = Math.PI;
         const center = [baselineX, baselineY];
@@ -553,7 +557,21 @@
         }
         return [center[0], center[1]];
       };
-      getFill = (point) => (!point.isNull ? "#e3e3e3" : "#ff5555");
+      getStrength = (point) => {
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc >= 1) return 0.3;
+        }
+        return 0.2;
+      };
+      getStrengthCollide = (point) => {
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc >= 1) return 0;
+        }
+        return -30;
+      };
+      getFill = (point) => (point.isNull ? "#e3e3e3" : "#ff5555");
       draw = () => {
         console.log(data);
         var svg = d3.select("#viz");
@@ -561,7 +579,7 @@
           .append("circle")
           .attr("cx", baselineX)
           .attr("cy", baselineY)
-          .attr("r", baselineX * 0.8)
+          .attr("r", ringRadius)
           .attr("stroke", "#e3e3e3")
           .attr("fill", "#ffffff");
         svg
@@ -576,32 +594,46 @@
         var simulation = d3
           .forceSimulation()
           //   .force("charge", d3.forceManyBody().strength(0.2))
-          // .force("center", d3.forceCenter(baselineX, baselineY))
+          // .force(
+          //   "center",
+          //   d3.forceCenter((d) => [1000, 1000])
+          // )
           .force(
             "x",
-            d3.forceX((d) => getForceCenter(d.value[selectedDateIndex])[0])
+            d3
+              .forceX((d) => getForceCenter(d.value[selectedDateIndex])[0])
+              .strength((d) => getStrength(d.value[selectedDateIndex]))
           )
           .force(
             "y",
-            d3.forceY((d) => getForceCenter(d.value[selectedDateIndex])[1])
+            d3
+              .forceY((d) => getForceCenter(d.value[selectedDateIndex])[1])
+              .strength((d) => getStrength(d.value[selectedDateIndex]))
           )
           .force(
             "collide",
             d3.forceCollide().radius((d) => getSize(d.value[selectedDateIndex]))
           )
-          .force("charge", d3.forceManyBody().strength(0.1));
+          .force(
+            "charge",
+            d3
+              .forceManyBody()
+              .strength((d) => getStrengthCollide(d.value[selectedDateIndex]))
+          );
         var bubbles = svg
           .selectAll(".points")
           .data(data)
           .enter()
           .append("circle")
+          .attr("cx", 1000)
+          .attr("cy", 1000)
           .attr("r", (d) => getSize(d.value[selectedDateIndex]))
           .attr("fill", (d) => getFill(d.value[selectedDateIndex]))
           .attr("fill-opacity", (d) => getOpacity(d.value[selectedDateIndex]));
 
         simulation.nodes(data).on("tick", ticked);
 
-        function ticked() {
+        function ticked(i) {
           bubbles
             .attr("cx", function (d) {
               return d.x;
@@ -610,9 +642,14 @@
               return d.y;
             });
         }
-        d3.interval(
-          function () {
-            selectedDateIndex += 5;
+        timer = () => {
+          return d3.interval(function (elapsed) {
+            if (selectedDateIndex + increment >= allDates.length) {
+              selectedDateIndex = allDates.length - 1;
+            } else {
+              selectedDateIndex += increment;
+            }
+            console.log(selectedDateIndex);
             simulation.alpha(0.5).alphaTarget(0.3).restart();
 
             simulation.force("x").initialize(data);
@@ -629,14 +666,29 @@
             //   .attr("fill", function (d) {
             //     return colorScale(d[year]);
             //   });
-          },
-          500,
-          d3.now()
-        );
+            if (selectedDateIndex == allDates.length - 1) {
+              t.stop();
+            }
+          }, 1000);
+        };
+        isPlaying = false;
+        toggleTimer = () => {
+          if (isPlaying) {
+            t.stop();
+            isPlaying = false;
+          } else {
+            t = timer();
+            isPlaying = true;
+          }
+        };
+        toggleTimer();
       };
     </script>
   </head>
   <body onload="getData()">
     <svg id="viz" width="1500" height="1500"></svg>
+    <div>
+      <button onclick="toggleTimer()">stop</button>
+    </div>
   </body>
 </html>
