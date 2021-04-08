@@ -477,7 +477,7 @@
       /* variables, javascript and D3 functions go here */
       var data; // define a container variable to hold your data
       var dates;
-      var selectedDateIndex = 0;
+      var selectedDateIndex = 300;
       var selectedDates = [];
       var simulation;
       width = 1500;
@@ -551,7 +551,6 @@
           coords = getCoordinates(angle, ringRadius);
           return [baselineX + coords[0], baselineY - coords[1]];
         }
-
         return [center[0], center[1]];
       };
       getFill = (point) => (!point.isNull ? "#e3e3e3" : "#ff5555");
@@ -625,7 +624,8 @@
               .attr("r", (d) => getSize(d.value[selectedDateIndex]))
               .attr("fill-opacity", (d) =>
                 getOpacity(d.value[selectedDateIndex])
-              );
+              )
+              .attr("fill", (d) => getFill(d.value[selectedDateIndex]));
             //   .attr("fill", function (d) {
             //     return colorScale(d[year]);
             //   });
