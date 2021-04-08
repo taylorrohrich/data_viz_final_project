@@ -2,97 +2,345 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Final Project</title>
+    <title>D3 Template</title>
 
-    <style></style>
+    <style>
+      /* CSS Graphic Styles go here */
+    </style>
 
     <script src="https://d3js.org/d3.v6.min.js"></script>
-    <script>
-      // variables and scripts
-      let data; // to hold the data
-      let viz;
-
-      // function to get the data from file
+    <script type="text/javascript">
+      countries = [
+        "Afghanistan",
+        "Africa",
+        "Albania",
+        "Algeria",
+        "Andorra",
+        "Angola",
+        "Anguilla",
+        "Antigua and Barbuda",
+        "Argentina",
+        "Armenia",
+        "Asia",
+        "Australia",
+        "Austria",
+        "Azerbaijan",
+        "Bahamas",
+        "Bahrain",
+        "Bangladesh",
+        "Barbados",
+        "Belarus",
+        "Belgium",
+        "Belize",
+        "Benin",
+        "Bermuda",
+        "Bhutan",
+        "Bolivia",
+        "Bosnia and Herzegovina",
+        "Botswana",
+        "Brazil",
+        "Brunei",
+        "Bulgaria",
+        "Burkina Faso",
+        "Burundi",
+        "Cambodia",
+        "Cameroon",
+        "Canada",
+        "Cape Verde",
+        "Cayman Islands",
+        "Central African Republic",
+        "Chad",
+        "Chile",
+        "China",
+        "Colombia",
+        "Comoros",
+        "Congo",
+        "Costa Rica",
+        "Cote d'Ivoire",
+        "Croatia",
+        "Cuba",
+        "Cyprus",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Denmark",
+        "Djibouti",
+        "Dominica",
+        "Dominican Republic",
+        "Ecuador",
+        "Egypt",
+        "El Salvador",
+        "Equatorial Guinea",
+        "Eritrea",
+        "Estonia",
+        "Eswatini",
+        "Ethiopia",
+        "Europe",
+        "European Union",
+        "Faeroe Islands",
+        "Falkland Islands",
+        "Fiji",
+        "Finland",
+        "France",
+        "Gabon",
+        "Gambia",
+        "Georgia",
+        "Germany",
+        "Ghana",
+        "Gibraltar",
+        "Greece",
+        "Greenland",
+        "Grenada",
+        "Guatemala",
+        "Guernsey",
+        "Guinea",
+        "Guinea-Bissau",
+        "Guyana",
+        "Haiti",
+        "Honduras",
+        "Hong Kong",
+        "Hungary",
+        "Iceland",
+        "India",
+        "Indonesia",
+        "International",
+        "Iran",
+        "Iraq",
+        "Ireland",
+        "Isle of Man",
+        "Israel",
+        "Italy",
+        "Jamaica",
+        "Japan",
+        "Jersey",
+        "Jordan",
+        "Kazakhstan",
+        "Kenya",
+        "Kosovo",
+        "Kuwait",
+        "Kyrgyzstan",
+        "Laos",
+        "Latvia",
+        "Lebanon",
+        "Lesotho",
+        "Liberia",
+        "Libya",
+        "Liechtenstein",
+        "Lithuania",
+        "Luxembourg",
+        "Macao",
+        "Madagascar",
+        "Malawi",
+        "Malaysia",
+        "Maldives",
+        "Mali",
+        "Malta",
+        "Marshall Islands",
+        "Mauritania",
+        "Mauritius",
+        "Mexico",
+        "Micronesia (country)",
+        "Moldova",
+        "Monaco",
+        "Mongolia",
+        "Montenegro",
+        "Montserrat",
+        "Morocco",
+        "Mozambique",
+        "Myanmar",
+        "Namibia",
+        "Nepal",
+        "Netherlands",
+        "New Zealand",
+        "Nicaragua",
+        "Niger",
+        "Nigeria",
+        "North America",
+        "North Macedonia",
+        "Northern Cyprus",
+        "Norway",
+        "Oceania",
+        "Oman",
+        "Pakistan",
+        "Palestine",
+        "Panama",
+        "Papua New Guinea",
+        "Paraguay",
+        "Peru",
+        "Philippines",
+        "Poland",
+        "Portugal",
+        "Qatar",
+        "Romania",
+        "Russia",
+        "Rwanda",
+        "Saint Helena",
+        "Saint Kitts and Nevis",
+        "Saint Lucia",
+        "Saint Vincent and the Grenadines",
+        "Samoa",
+        "San Marino",
+        "Sao Tome and Principe",
+        "Saudi Arabia",
+        "Senegal",
+        "Serbia",
+        "Seychelles",
+        "Sierra Leone",
+        "Singapore",
+        "Slovakia",
+        "Slovenia",
+        "Solomon Islands",
+        "Somalia",
+        "South Africa",
+        "South America",
+        "South Korea",
+        "South Sudan",
+        "Spain",
+        "Sri Lanka",
+        "Sudan",
+        "Suriname",
+        "Sweden",
+        "Switzerland",
+        "Syria",
+        "Taiwan",
+        "Tajikistan",
+        "Tanzania",
+        "Thailand",
+        "Timor",
+        "Togo",
+        "Trinidad and Tobago",
+        "Tunisia",
+        "Turkey",
+        "Turks and Caicos Islands",
+        "Uganda",
+        "Ukraine",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States",
+        "Uruguay",
+        "Uzbekistan",
+        "Vanuatu",
+        "Vatican",
+        "Venezuela",
+        "Vietnam",
+        "World",
+        "Yemen",
+        "Zambia",
+        "Zimbabwe",
+      ];
+      /* variables, javascript and D3 functions go here */
+      var data; // define a container variable to hold your data
+      var dates;
+      var selectedDateIndex = 100;
+      var selectedDates = [];
+      var simulation;
+      function sortByDateAscending(a, b) {
+        // Dates will be cast to numbers automagically:
+        return a.dateObj - b.dateObj;
+      }
+      parseDateData = (date) => {
+        values = date[1];
+        valueCountries = values.map((item) => item.location);
+        addedCountries = countries.reduce((acc, item) => {
+          if (!valueCountries.includes(item)) {
+            return [...acc, { date: date[0], location: item, isNull: true }];
+          }
+          return acc;
+        }, []);
+        combined = [...date[1], ...addedCountries];
+        combined = combined.sort((x, y) => (x.location < y.location ? -1 : 1));
+        // console.log(combined.length);
+        return [date[0], combined];
+      };
       getData = () => {
-        print("hi");
-        d3.csv("data/parsed.csv").then((d) => {
-          print("hi");
-          data = d;
-          print(d);
-          draw(data);
+        d3.csv(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/data/parsed.csv"
+        ).then((csvdata) => {
+          // rawData = csvdata;
+          // dates =d3.map(data, function(d){return d.roadname;}).keys()
+          data = csvdata.map((data) => ({
+            ...data,
+            dateObj: new Date(data.date),
+          }));
+          data = data.sort(sortByDateAscending);
+          data = d3.group(data, (d) => d["date"]);
+          data = d3.map(data, parseDateData);
+          console.log(data);
+          dates = d3.map(data, (d) => d[0]);
+          data = d3.map(data, (d) => d[1]);
+          console.log(data);
+          createSimulation();
+          draw();
         });
       };
-
-      // some global variables
-      let vizWidth;
-      let baseline;
-
-      toNum = (text) => Number(text.replace(/,/g, ""));
-      rFromArea = (area) => Math.sqrt(toNum(area) / Math.PI);
-
-      // draw things
-      draw = (data) => {
-        // setup the viz
-        viz = d3.select("#viz");
-        vizWidth = Number(viz.attr("width"));
-        vizHeight = Number(viz.attr("height"));
-
-        baseline = vizHeight - 150; // the 0 line to work up from
-
-        scaleLon = d3
-          .scaleLinear() // scale the X dimension
-          .domain([-175, -65])
-          .range([0, vizWidth]);
-
-        scaleHeight = d3
-          .scaleLinear() // scale the Y dimension
-          .domain([0, 30000000])
-          .range([baseline, 0]);
-
-        rScale = 0.03;
-
-        // now draw the circles
-        circles = viz.selectAll("circle");
+      ticked = () => {
+        var u = d3.select("#viz").selectAll("circle").data(selectedDates);
+        u.enter()
+          .append("circle")
+          .attr("r", function (d) {
+            return d.radius;
+          })
+          .merge(u)
+          .attr("cx", function (d) {
+            return d.x;
+          })
+          .attr("cy", function (d) {
+            return d.y;
+          });
+      };
+      width = 1000;
+      height = 1000;
+      createSimulation = () => {
+        selectedDates = d3.map(data[selectedDateIndex], (d) => ({
+          ...d,
+          radius: !d.isNull
+            ? 5 + Math.sqrt(Number(d["new_cases_smoothed_per_million"]))
+            : 0,
+        }));
+        simulation = d3
+          .forceSimulation(selectedDates)
+          .force("charge", d3.forceManyBody().strength(1))
+          .force(
+            "collision",
+            d3.forceCollide().radius(function (d) {
+              return d.radius;
+            })
+          )
+          .force("center", d3.forceCenter(width / 2, height / 2))
+          .on("tick", ticked);
       };
 
-      // some interface scripts
-      dimAll = () => circles.style("opacity", "0.02");
-      showAll = () => circles.style("opacity", "");
+      function restart() {
+        // Update and restart the simulation.
+        selectedDates = d3.map(data[selectedDateIndex], (d) => ({
+          ...d,
+          radius: !d.isNull
+            ? 5 + Math.sqrt(Number(d["new_cases_smoothed_per_million"]))
+            : 0,
+        }));
+        simulation.nodes(selectedDates);
+        simulation.restart();
+        // simulation.force("charge").initialize();
+        // simulation.force("collision").initialize();
+      }
 
-      filter = (field, value) => {
-        dimAll();
-        circles.filter((d) => d[field] == value).style("opacity", "");
-      };
-
-      filterValue = (field, value) => {
-        dimAll();
-        circles.filter((d) => toNum(d[field]) > value).style("opacity", "");
-      };
-
-      highlight = (evt, d) => {
-        thisElem = evt.currentTarget;
-        d3.select(thisElem)
-          .style("stroke", "yellow")
-          .style("stroke-width", "2");
-        d3.select("#info")
-          .text(d["Plant name"])
-          .style("top", evt.y + "px")
-          .style("left", evt.x + "px")
-          .style("visibility", "visible");
-        //d3.select("#plantName").attr("x",thisElem.getAttribute("cx")).attr("y",thisElem.getAttribute("cy")).text(d["Plant name"]);
-      };
-
-      unhighlight = (evt) => {
-        d3.select(evt.currentTarget)
-          .style("stroke", "")
-          .style("stroke-width", "");
-        d3.select("#info").style("visibility", "hidden");
+      draw = () => {
+        console.log(data[selectedDateIndex]);
+        // console.log(data);
+        // console.log(selectedDates);
+        // console.log(selectedDateIndex, dates.length);
+        d3.interval(
+          function () {
+            selectedDateIndex += 10;
+            console.log(selectedDateIndex);
+            restart();
+          },
+          3000,
+          d3.now()
+        );
       };
     </script>
   </head>
   <body onload="getData()">
-    <svg id="viz" width="1000" height="1000">
-      <text id="plantName"></text>
-    </svg>
+    <svg id="viz" width="1000" height="1000"></svg>
   </body>
 </html>

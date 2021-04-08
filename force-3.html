@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+  <script>
+    var data = [
+      { year1: 2, year2: 1, year3: 3, label: "a" },
+      { year1: 3, year2: 4, year3: 5, label: "b" },
+      { year1: 5, year2: 9, year3: 7, label: "c" },
+      { year1: 8, year2: 16, year3: 11, label: "d" },
+      { year1: 13, year2: 25, year3: 13, label: "e" },
+      { year1: 21, year2: 36, year3: 17, label: "f" },
+      { year1: 34, year2: 1, year3: 19, label: "g" },
+      { year1: 2, year2: 4, year3: 23, label: "h" },
+      { year1: 3, year2: 9, year3: 29, label: "i" },
+      { year1: 5, year2: 16, year3: 31, label: "j" },
+      { year1: 8, year2: 25, year3: 37, label: "k" },
+      { year1: 13, year2: 36, year3: 3, label: "l" },
+      { year1: 21, year2: 1, year3: 5, label: "m" },
+    ];
+
+    // Create some buttons:
+    var buttons = d3
+      .select("body")
+      .selectAll("button")
+      .data(["year1", "year2", "year3"])
+      .enter()
+      .append("button")
+      .text(function (d) {
+        return d;
+      });
+
+    // Go about setting the force layout:
+    var svg = d3
+      .select("body")
+      .append("svg")
+      .attr("width", 500)
+      .attr("height", 300);
+
+    var radiusScale = d3.scaleSqrt().domain([0, 40]).range([5, 30]);
+
+    var colorScale = d3
+      .scaleLinear()
+      .domain([0, 10, 37])
+      .range(["#c7e9b4", "#41b6c4", "#253494"]);
+
+    var year = "year1";
+
+    var simulation = d3
+      .forceSimulation()
+      .force(
+        "x",
+        d3
+          .forceX(function (d) {
+            if (parseFloat(d[year]) >= 15) {
+              return 100;
+            } else if (parseFloat(d[year]) > 5) {
+              return 250;
+            } else {
+              return 400;
+            }
+          })
+          .strength(0.05)
+      )
+      .force("y", d3.forceY(150).strength(0.05))
+      .force(
+        "collide",
+        d3.forceCollide().radius(function (d) {
+          return radiusScale(d[year]);
+        })
+      );
+
+    var bubbles = svg
+      .selectAll("circle")
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("r", function (d) {
+        return radiusScale(d[year]);
+      })
+      .attr("fill", function (d) {
+        return colorScale(d[year]);
+      });
+
+    var labels = svg
+      .selectAll("text")
+      .data(data)
+      .enter()
+      .append("text")
+      .text(function (d) {
+        return d.label;
+      })
+      .style("text-anchor", "middle");
+
+    simulation.nodes(data).on("tick", ticked);
+
+    function ticked() {
+      bubbles
+        .attr("cx", function (d) {
+          return d.x;
+        })
+        .attr("cy", function (d) {
+          return d.y;
+        });
+
+      labels
+        .attr("x", function (d) {
+          return d.x;
+        })
+        .attr("y", function (d) {
+          return d.y + 5;
+        });
+    }
+
+    buttons.on("click", function (d) {
+      // d is the year:
+      year = d;
+
+      simulation.alpha(0.5).alphaTarget(0.3).restart();
+
+      simulation.force("x").initialize(data);
+      simulation.force("collide").initialize(data);
+
+      bubbles
+        .attr("r", function (d) {
+          return radiusScale(d[year]);
+        })
+        .attr("fill", function (d) {
+          return colorScale(d[year]);
+        });
+    });
+  </script>
+  <body></body>
+</html>
