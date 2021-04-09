@@ -5,10 +5,22 @@
     <title>D3 Template</title>
 
     <style>
-      /* CSS Graphic Styles go here */
+      body {
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+          "Lucida Sans", Arial, sans-serif;
+      }
+      .header {
+        font-size: 30px;
+        font-weight: bold;
+      }
+      .subheader {
+        font-size: 20px;
+        opacity: 0.5;
+      }
     </style>
 
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
     <script type="text/javascript">
       allDates = [
         "2020-02-24",
@@ -489,16 +501,37 @@
       var increment = 10;
       var pi = Math.PI;
       var anchorPointCoords;
+      var slider;
       initializeGlobals = () => {
-        svg = d3.select("#viz");
-        width = Number(svg.attr("width"));
-        height = Number(svg.attr("height"));
-        baselineX = width / 2;
-        baselineY = height / 2;
+        svgDim = Math.round(window.innerHeight * 0.8);
+        svg = d3.select("#viz").attr("width", svgDim).attr("height", svgDim);
+        baselineX = svgDim / 2;
+        baselineY = svgDim / 2;
         ringRadius = baselineX * 0.8;
         anchorPointCoords = getAnchorPoints()
           .map((angle) => getCoordinates(angle, ringRadius))
           .map((coords) => [baselineX + coords[0], baselineY - coords[1]]);
+        slider = d3
+          .sliderHorizontal()
+          .min(0)
+          .max(416)
+          .step(1)
+          .width(svgDim - 40)
+          .height(100)
+          .displayValue(false)
+          .on("start", () => toggleTimer())
+          .on("end", (val) => {
+            selectedDateIndex = val;
+            toggleTimer();
+          });
+
+        d3.select("#slider")
+
+          .attr("width", svgDim)
+          .attr("height", 100)
+          .append("g")
+          .attr("transform", `translate(20,50)`)
+          .call(slider);
       };
       sortByDateAscending = (a, b) => {
         // Dates will be cast to numbers automagically:
@@ -582,7 +615,6 @@
       };
       getFill = (point) => (point.isNull ? "#e3e3e3" : "#ff5555");
       draw = () => {
-        console.log(data);
         svg
           .append("circle")
           .attr("cx", baselineX)
@@ -601,11 +633,6 @@
           .attr("fill", "#ffffff");
         var simulation = d3
           .forceSimulation()
-          //   .force("charge", d3.forceManyBody().strength(0.2))
-          // .force(
-          //   "center",
-          //   d3.forceCenter((d) => [1000, 1000])
-          // )
           .force(
             "x",
             d3
@@ -633,8 +660,6 @@
           .data(data)
           .enter()
           .append("circle")
-          .attr("cx", 1000)
-          .attr("cy", 1000)
           .attr("r", (d) => getSize(d.value[selectedDateIndex]))
           .attr("fill", (d) => getFill(d.value[selectedDateIndex]))
           .attr("fill-opacity", (d) => getOpacity(d.value[selectedDateIndex]));
@@ -674,6 +699,7 @@
             //   .attr("fill", function (d) {
             //     return colorScale(d[year]);
             //   });
+            slider.value(selectedDateIndex);
             if (selectedDateIndex == allDates.length - 1) {
               t.stop();
             }
@@ -694,7 +720,26 @@
     </script>
   </head>
   <body onload="getData()">
-    <svg id="viz" width="1500" height="1500"></svg>
+    <div>
+      <div>
+        <div class="header">The Promise of Vaccines</div>
+        <div class="subheader">
+          The International Resillience after a year of COVID-19.
+        </div>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <svg id="viz" width="0" height="0"></svg>
+        <svg id="slider" width="0" height="0"></svg>
+      </div>
+    </div>
+
     <div>
       <button onclick="toggleTimer()">stop</button>
     </div>
