@@ -498,16 +498,18 @@
       var baselineX;
       var baselineY;
       var ringRadius;
-      var increment = 10;
+      var increment = 1;
       var pi = Math.PI;
       var anchorPointCoords;
       var slider;
+      var pause;
+      var play;
       initializeGlobals = () => {
-        svgDim = Math.round(window.innerHeight * 0.8);
+        svgDim = Math.round(window.innerHeight);
         svg = d3.select("#viz").attr("width", svgDim).attr("height", svgDim);
         baselineX = svgDim / 2;
         baselineY = svgDim / 2;
-        ringRadius = baselineX * 0.8;
+        ringRadius = baselineX * 0.7;
         anchorPointCoords = getAnchorPoints()
           .map((angle) => getCoordinates(angle, ringRadius))
           .map((coords) => [baselineX + coords[0], baselineY - coords[1]]);
@@ -516,7 +518,7 @@
           .min(0)
           .max(416)
           .step(1)
-          .width(svgDim - 40)
+          .width(svgDim * 0.9 - 40)
           .height(100)
           .displayValue(false)
           .on("start", () => toggleTimer())
@@ -524,15 +526,30 @@
             selectedDateIndex = val;
             toggleTimer();
           });
-
+        getSvg(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/resources/pause.svg"
+        ).then((res) => {
+          pause = res.documentElement;
+          d3.select("#toggle").node().appendChild(pause);
+        });
+        getSvg(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/resources/play.svg"
+        ).then((res) => {
+          play = res.documentElement;
+        });
         d3.select("#slider")
-
-          .attr("width", svgDim)
+          .attr("width", svgDim * 0.9)
           .attr("height", 100)
           .append("g")
           .attr("transform", `translate(20,50)`)
           .call(slider);
+
+        d3.select("#toggle")
+          .attr("width", 20)
+          .attr("height", 20)
+          .attr("fill-opacity", 0.5);
       };
+
       sortByDateAscending = (a, b) => {
         // Dates will be cast to numbers automagically:
         return a.dateObj - b.dateObj;
@@ -553,6 +570,11 @@
         }));
         combined = combined.sort(sortByDateAscending);
         return { key: date[0], value: combined };
+      };
+      getSvg = (url, variableName) => {
+        return d3.xml(url, (e, documentFragment) => {
+          return documentFragment.getElementsByTagName("svg")[0];
+        });
       };
       getData = () => {
         d3.csv(
@@ -594,7 +616,9 @@
           vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
           if (vacc == 0) return [center[0], center[1]];
           angle = pi / 2 - 2 * pi * vacc;
-          coords = getCoordinates(angle, ringRadius);
+          coords = getCoordinates(angle, ringRadius * 0.8);
+          //console.log(ringRadius);
+          console.log(angle);
           return [baselineX + coords[0], baselineY - coords[1]];
         }
         return [center[0], center[1]];
@@ -602,7 +626,7 @@
       getStrength = (point) => {
         if (!point.isNull) {
           vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
-          if (vacc >= 1) return 0.3;
+          if (vacc >= 1) return 10;
         }
         return 0.2;
       };
@@ -636,13 +660,15 @@
           .force(
             "x",
             d3
-              .forceX((d) => getForceCenter(d.value[selectedDateIndex])[0])
+              .forceX()
+              .x((d) => getForceCenter(d.value[selectedDateIndex])[0])
               .strength((d) => getStrength(d.value[selectedDateIndex]))
           )
           .force(
             "y",
             d3
-              .forceY((d) => getForceCenter(d.value[selectedDateIndex])[1])
+              .forceY()
+              .y((d) => getForceCenter(d.value[selectedDateIndex])[1])
               .strength((d) => getStrength(d.value[selectedDateIndex]))
           )
           .force(
@@ -665,7 +691,12 @@
           .attr("fill-opacity", (d) => getOpacity(d.value[selectedDateIndex]));
 
         simulation.nodes(data).on("tick", ticked);
-
+        bubbles.on("mouseover", (e, d) => {
+          dataPoint = d.value[selectedDateIndex];
+          if (!dataPoint.isNull) {
+            console.log(d.key);
+          }
+        });
         function ticked(i) {
           bubbles
             .attr("cx", function (d) {
@@ -715,6 +746,12 @@
             isPlaying = true;
           }
         };
+        toggleButton = () => {
+          nextIcon = isPlaying ? play : pause;
+          d3.select("#toggle").html("");
+          d3.select("#toggle").node().appendChild(nextIcon);
+          toggleTimer();
+        };
         toggleTimer();
       };
     </script>
@@ -736,12 +773,25 @@
         "
       >
         <svg id="viz" width="0" height="0"></svg>
-        <svg id="slider" width="0" height="0"></svg>
-      </div>
-    </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            flex: 1;
+          "
+        >
+          <svg
+            id="toggle"
+            onclick="toggleButton()"
+            style="cursor: pointer"
+            width="0"
+            height="0"
+          ></svg>
 
-    <div>
-      <button onclick="toggleTimer()">stop</button>
+          <svg id="slider" width="0" height="0"></svg>
+        </div>
+      </div>
     </div>
   </body>
 </html>
