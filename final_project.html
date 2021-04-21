@@ -17,12 +17,93 @@
         font-size: 20px;
         opacity: 0.5;
       }
+      #tooltip {
+        background-color: #ffffff;
+        border-color: #e3e3e3;
+        border-width: 1px;
+        border-style: solid;
+        padding: 10px;
+      }
+      #tt-header {
+        font-size: 18px;
+      }
+      #tt-header-right {
+        font-size: 14px;
+      }
+      #tt-subheader {
+        margin-top: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+      .anchorPointsText {
+        font-size: 12px;
+        opacity: 0.6;
+      }
+      .percentVacc {
+        font-weight: bold;
+        font-size: 14px;
+        opacity: 0.6;
+      }
     </style>
 
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://unpkg.com/d3-simple-slider"></script>
     <script type="text/javascript">
       allDates = [
+        "2020-01-01",
+        "2020-01-02",
+        "2020-01-03",
+        "2020-01-04",
+        "2020-01-05",
+        "2020-01-06",
+        "2020-01-07",
+        "2020-01-08",
+        "2020-01-09",
+        "2020-01-10",
+        "2020-01-11",
+        "2020-01-12",
+        "2020-01-13",
+        "2020-01-14",
+        "2020-01-15",
+        "2020-01-16",
+        "2020-01-17",
+        "2020-01-18",
+        "2020-01-19",
+        "2020-01-20",
+        "2020-01-21",
+        "2020-01-22",
+        "2020-01-23",
+        "2020-01-24",
+        "2020-01-25",
+        "2020-01-26",
+        "2020-01-27",
+        "2020-01-28",
+        "2020-01-29",
+        "2020-01-30",
+        "2020-01-31",
+        "2020-02-01",
+        "2020-02-02",
+        "2020-02-03",
+        "2020-02-04",
+        "2020-02-05",
+        "2020-02-06",
+        "2020-02-07",
+        "2020-02-08",
+        "2020-02-09",
+        "2020-02-10",
+        "2020-02-11",
+        "2020-02-12",
+        "2020-02-13",
+        "2020-02-14",
+        "2020-02-15",
+        "2020-02-16",
+        "2020-02-17",
+        "2020-02-18",
+        "2020-02-19",
+        "2020-02-20",
+        "2020-02-21",
+        "2020-02-22",
+        "2020-02-23",
         "2020-02-24",
         "2020-02-25",
         "2020-02-26",
@@ -431,60 +512,6 @@
         "2021-04-04",
         "2021-04-05",
         "2021-04-06",
-        "2020-02-13",
-        "2020-02-14",
-        "2020-02-15",
-        "2020-02-16",
-        "2020-02-17",
-        "2020-02-18",
-        "2020-02-19",
-        "2020-02-20",
-        "2020-02-21",
-        "2020-02-22",
-        "2020-02-23",
-        "2020-01-01",
-        "2020-01-02",
-        "2020-01-03",
-        "2020-01-04",
-        "2020-01-05",
-        "2020-01-06",
-        "2020-01-07",
-        "2020-01-08",
-        "2020-01-09",
-        "2020-01-10",
-        "2020-01-11",
-        "2020-01-12",
-        "2020-01-13",
-        "2020-01-14",
-        "2020-01-15",
-        "2020-01-16",
-        "2020-01-17",
-        "2020-01-18",
-        "2020-01-19",
-        "2020-01-20",
-        "2020-01-21",
-        "2020-01-22",
-        "2020-01-23",
-        "2020-01-24",
-        "2020-01-25",
-        "2020-01-26",
-        "2020-01-27",
-        "2020-01-28",
-        "2020-01-29",
-        "2020-01-30",
-        "2020-01-31",
-        "2020-02-01",
-        "2020-02-02",
-        "2020-02-03",
-        "2020-02-04",
-        "2020-02-05",
-        "2020-02-06",
-        "2020-02-07",
-        "2020-02-08",
-        "2020-02-09",
-        "2020-02-10",
-        "2020-02-11",
-        "2020-02-12",
       ];
       /* variables, javascript and D3 functions go here */
       var data; // define a container variable to hold your data
@@ -516,11 +543,12 @@
         slider = d3
           .sliderHorizontal()
           .min(0)
-          .max(416)
+          .max(allDates.length)
           .step(1)
           .width(svgDim * 0.9 - 40)
           .height(100)
           .displayValue(false)
+          .tickValues([])
           .on("start", () => toggleTimer())
           .on("end", (val) => {
             selectedDateIndex = val;
@@ -610,6 +638,31 @@
         );
       };
       getOpacity = (point) => (!point?.isNull ? 1 : 0.1);
+      getColor = (point) => {
+        color = "#e3e3e3";
+        continent = point.continent;
+        switch (continent) {
+          case "Africa":
+            color = "#f1fa8c";
+            break;
+          case "Asia":
+            color = "#ff5555";
+            break;
+          case "Europe":
+            color = "#bd93f9";
+            break;
+          case "North America":
+            color = "#ff79c6";
+            break;
+          case "Oceania":
+            color = "#ffb86c";
+            break;
+          case "South America":
+            color = "#50fa7b";
+            break;
+        }
+        return color;
+      };
       getForceCenter = (point) => {
         const center = [baselineX, baselineY];
         if (!point.isNull) {
@@ -637,8 +690,16 @@
         }
         return -30;
       };
-      getFill = (point) => (point.isNull ? "#e3e3e3" : "#ff5555");
+      getFill = (point) => (point.isNull ? "#e3e3e3" : getColor(point));
       draw = () => {
+        console.log(data);
+        svg
+          .append("text")
+          .attr("class", "percentVacc")
+          .attr("x", baselineX)
+          .attr("y", baselineY - ringRadius - 40)
+          .attr("text-anchor", "middle")
+          .text("Percent Vaccinated");
         svg
           .append("circle")
           .attr("cx", baselineX)
@@ -652,9 +713,19 @@
           .join("circle")
           .attr("cx", (d) => d[0])
           .attr("cy", (d) => d[1])
-          .attr("r", 10)
+          .attr("r", 20)
           .attr("stroke", "#e3e3e3")
           .attr("fill", "#ffffff");
+
+        svg
+          .selectAll(".anchorPointsText")
+          .data(anchorPointCoords)
+          .join("text")
+          .attr("text-anchor", "middle")
+          .attr("class", "anchorPointsText")
+          .attr("x", (d) => d[0])
+          .attr("y", (d) => d[1] + 4)
+          .text((d, i) => `${i * 10}%`);
         var simulation = d3
           .forceSimulation()
           .force(
@@ -689,14 +760,57 @@
           .attr("r", (d) => getSize(d.value[selectedDateIndex]))
           .attr("fill", (d) => getFill(d.value[selectedDateIndex]))
           .attr("fill-opacity", (d) => getOpacity(d.value[selectedDateIndex]));
+        d3.select("body")
+          .append("div")
+          .attr("id", "tooltip")
+          .attr("style", "position: absolute; opacity: 0;width: 200px");
+
+        tooltip = d3.select("#tooltip");
+        tooltip.append("div").attr("id", "tt-header");
+        ttHeader = d3
+          .select("#tt-header")
+          .attr(
+            "style",
+            "display:flex;flex-direction:row; align-items:center;justify-content:space-between"
+          );
+        ttHeader.append("div").attr("id", "tt-header-left").style("flex");
+        ttHeader.append("div").attr("id", "tt-header-right").style("flex");
+        tooltip.append("div").attr("id", "tt-subheader");
 
         simulation.nodes(data).on("tick", ticked);
         bubbles.on("mouseover", (e, d) => {
           dataPoint = d.value[selectedDateIndex];
           if (!dataPoint.isNull) {
-            console.log(d.key);
+            console.log(d);
+            console.log(e.pageX);
+            console.log(e.pageY);
+            d3.select("#tooltip")
+              .transition()
+              .duration(200)
+              .style("opacity", 1);
+            d3.select("#tooltip")
+              .style("left", e.pageX - 100 + "px")
+              .style("top", e.pageY - 80 + "px");
+            d3.select("#tt-header-left").text(d.key);
+            d3.select("#tt-header-right")
+              .text(dataPoint.continent)
+              .style("color", getFill(dataPoint));
           }
+          d3.select("#tt-subheader").text(
+            `Cases Per Million: ${Math.round(
+              dataPoint.new_cases_smoothed_per_million
+            )}`
+          );
         });
+        bubbles.on("mousemove", (e, d) => {
+          d3.select("#tooltip")
+            .style("left", e.pageX - 100 + "px")
+            .style("top", e.pageY - 125 + "px");
+        });
+        bubbles.on("mouseout", (e, d) => {
+          d3.select("#tooltip").style("opacity", 0);
+        });
+
         function ticked(i) {
           bubbles
             .attr("cx", function (d) {
@@ -714,6 +828,7 @@
               selectedDateIndex += increment;
             }
             console.log(selectedDateIndex);
+            updateDate();
             simulation.alpha(0.5).alphaTarget(0.3).restart();
 
             simulation.force("x").initialize(data);
@@ -752,6 +867,11 @@
           d3.select("#toggle").node().appendChild(nextIcon);
           toggleTimer();
         };
+        updateDate = () => {
+          d3.select("#date").text(
+            new Date(allDates[selectedDateIndex]).toDateString()
+          );
+        };
         toggleTimer();
       };
     </script>
@@ -773,6 +893,7 @@
         "
       >
         <svg id="viz" width="0" height="0"></svg>
+        <div id="date"></div>
         <div
           style="
             display: flex;

@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>D3 Template</title>
+
+    <style>
+      body {
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+          "Lucida Sans", Arial, sans-serif;
+      }
+      select {
+        height: 150px;
+        width: 200px;
+        border-width: 1px;
+        border-radius: 5px;
+        border-color: #e3e3e3;
+      }
+      option {
+        padding: 5px;
+        font-size: 20px;
+      }
+      .header {
+        font-size: 30px;
+        font-weight: bold;
+      }
+      .subheader {
+        font-size: 20px;
+        opacity: 0.5;
+      }
+      #tooltip {
+        background-color: #ffffff;
+        border-color: #e3e3e3;
+        border-width: 1px;
+        border-style: solid;
+        padding: 10px;
+      }
+      #tt-header {
+        font-size: 18px;
+      }
+      #tt-header-right {
+        font-size: 14px;
+      }
+      #tt-subheader {
+        margin-top: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+      .anchorPointsText {
+        font-size: 12px;
+        opacity: 0.6;
+        z-index: 9999;
+      }
+      .percentVacc {
+        font-weight: bold;
+        font-size: 14px;
+        z-index: 9999;
+      }
+    </style>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+    <script type="text/javascript">
+      allDates = [
+        "2020-01-01",
+        "2020-01-02",
+        "2020-01-03",
+        "2020-01-04",
+        "2020-01-05",
+        "2020-01-06",
+        "2020-01-07",
+        "2020-01-08",
+        "2020-01-09",
+        "2020-01-10",
+        "2020-01-11",
+        "2020-01-12",
+        "2020-01-13",
+        "2020-01-14",
+        "2020-01-15",
+        "2020-01-16",
+        "2020-01-17",
+        "2020-01-18",
+        "2020-01-19",
+        "2020-01-20",
+        "2020-01-21",
+        "2020-01-22",
+        "2020-01-23",
+        "2020-01-24",
+        "2020-01-25",
+        "2020-01-26",
+        "2020-01-27",
+        "2020-01-28",
+        "2020-01-29",
+        "2020-01-30",
+        "2020-01-31",
+        "2020-02-01",
+        "2020-02-02",
+        "2020-02-03",
+        "2020-02-04",
+        "2020-02-05",
+        "2020-02-06",
+        "2020-02-07",
+        "2020-02-08",
+        "2020-02-09",
+        "2020-02-10",
+        "2020-02-11",
+        "2020-02-12",
+        "2020-02-13",
+        "2020-02-14",
+        "2020-02-15",
+        "2020-02-16",
+        "2020-02-17",
+        "2020-02-18",
+        "2020-02-19",
+        "2020-02-20",
+        "2020-02-21",
+        "2020-02-22",
+        "2020-02-23",
+        "2020-02-24",
+        "2020-02-25",
+        "2020-02-26",
+        "2020-02-27",
+        "2020-02-28",
+        "2020-02-29",
+        "2020-03-01",
+        "2020-03-02",
+        "2020-03-03",
+        "2020-03-04",
+        "2020-03-05",
+        "2020-03-06",
+        "2020-03-07",
+        "2020-03-08",
+        "2020-03-09",
+        "2020-03-10",
+        "2020-03-11",
+        "2020-03-12",
+        "2020-03-13",
+        "2020-03-14",
+        "2020-03-15",
+        "2020-03-16",
+        "2020-03-17",
+        "2020-03-18",
+        "2020-03-19",
+        "2020-03-20",
+        "2020-03-21",
+        "2020-03-22",
+        "2020-03-23",
+        "2020-03-24",
+        "2020-03-25",
+        "2020-03-26",
+        "2020-03-27",
+        "2020-03-28",
+        "2020-03-29",
+        "2020-03-30",
+        "2020-03-31",
+        "2020-04-01",
+        "2020-04-02",
+        "2020-04-03",
+        "2020-04-04",
+        "2020-04-05",
+        "2020-04-06",
+        "2020-04-07",
+        "2020-04-08",
+        "2020-04-09",
+        "2020-04-10",
+        "2020-04-11",
+        "2020-04-12",
+        "2020-04-13",
+        "2020-04-14",
+        "2020-04-15",
+        "2020-04-16",
+        "2020-04-17",
+        "2020-04-18",
+        "2020-04-19",
+        "2020-04-20",
+        "2020-04-21",
+        "2020-04-22",
+        "2020-04-23",
+        "2020-04-24",
+        "2020-04-25",
+        "2020-04-26",
+        "2020-04-27",
+        "2020-04-28",
+        "2020-04-29",
+        "2020-04-30",
+        "2020-05-01",
+        "2020-05-02",
+        "2020-05-03",
+        "2020-05-04",
+        "2020-05-05",
+        "2020-05-06",
+        "2020-05-07",
+        "2020-05-08",
+        "2020-05-09",
+        "2020-05-10",
+        "2020-05-11",
+        "2020-05-12",
+        "2020-05-13",
+        "2020-05-14",
+        "2020-05-15",
+        "2020-05-16",
+        "2020-05-17",
+        "2020-05-18",
+        "2020-05-19",
+        "2020-05-20",
+        "2020-05-21",
+        "2020-05-22",
+        "2020-05-23",
+        "2020-05-24",
+        "2020-05-25",
+        "2020-05-26",
+        "2020-05-27",
+        "2020-05-28",
+        "2020-05-29",
+        "2020-05-30",
+        "2020-05-31",
+        "2020-06-01",
+        "2020-06-02",
+        "2020-06-03",
+        "2020-06-04",
+        "2020-06-05",
+        "2020-06-06",
+        "2020-06-07",
+        "2020-06-08",
+        "2020-06-09",
+        "2020-06-10",
+        "2020-06-11",
+        "2020-06-12",
+        "2020-06-13",
+        "2020-06-14",
+        "2020-06-15",
+        "2020-06-16",
+        "2020-06-17",
+        "2020-06-18",
+        "2020-06-19",
+        "2020-06-20",
+        "2020-06-21",
+        "2020-06-22",
+        "2020-06-23",
+        "2020-06-24",
+        "2020-06-25",
+        "2020-06-26",
+        "2020-06-27",
+        "2020-06-28",
+        "2020-06-29",
+        "2020-06-30",
+        "2020-07-01",
+        "2020-07-02",
+        "2020-07-03",
+        "2020-07-04",
+        "2020-07-05",
+        "2020-07-06",
+        "2020-07-07",
+        "2020-07-08",
+        "2020-07-09",
+        "2020-07-10",
+        "2020-07-11",
+        "2020-07-12",
+        "2020-07-13",
+        "2020-07-14",
+        "2020-07-15",
+        "2020-07-16",
+        "2020-07-17",
+        "2020-07-18",
+        "2020-07-19",
+        "2020-07-20",
+        "2020-07-21",
+        "2020-07-22",
+        "2020-07-23",
+        "2020-07-24",
+        "2020-07-25",
+        "2020-07-26",
+        "2020-07-27",
+        "2020-07-28",
+        "2020-07-29",
+        "2020-07-30",
+        "2020-07-31",
+        "2020-08-01",
+        "2020-08-02",
+        "2020-08-03",
+        "2020-08-04",
+        "2020-08-05",
+        "2020-08-06",
+        "2020-08-07",
+        "2020-08-08",
+        "2020-08-09",
+        "2020-08-10",
+        "2020-08-11",
+        "2020-08-12",
+        "2020-08-13",
+        "2020-08-14",
+        "2020-08-15",
+        "2020-08-16",
+        "2020-08-17",
+        "2020-08-18",
+        "2020-08-19",
+        "2020-08-20",
+        "2020-08-21",
+        "2020-08-22",
+        "2020-08-23",
+        "2020-08-24",
+        "2020-08-25",
+        "2020-08-26",
+        "2020-08-27",
+        "2020-08-28",
+        "2020-08-29",
+        "2020-08-30",
+        "2020-08-31",
+        "2020-09-01",
+        "2020-09-02",
+        "2020-09-03",
+        "2020-09-04",
+        "2020-09-05",
+        "2020-09-06",
+        "2020-09-07",
+        "2020-09-08",
+        "2020-09-09",
+        "2020-09-10",
+        "2020-09-11",
+        "2020-09-12",
+        "2020-09-13",
+        "2020-09-14",
+        "2020-09-15",
+        "2020-09-16",
+        "2020-09-17",
+        "2020-09-18",
+        "2020-09-19",
+        "2020-09-20",
+        "2020-09-21",
+        "2020-09-22",
+        "2020-09-23",
+        "2020-09-24",
+        "2020-09-25",
+        "2020-09-26",
+        "2020-09-27",
+        "2020-09-28",
+        "2020-09-29",
+        "2020-09-30",
+        "2020-10-01",
+        "2020-10-02",
+        "2020-10-03",
+        "2020-10-04",
+        "2020-10-05",
+        "2020-10-06",
+        "2020-10-07",
+        "2020-10-08",
+        "2020-10-09",
+        "2020-10-10",
+        "2020-10-11",
+        "2020-10-12",
+        "2020-10-13",
+        "2020-10-14",
+        "2020-10-15",
+        "2020-10-16",
+        "2020-10-17",
+        "2020-10-18",
+        "2020-10-19",
+        "2020-10-20",
+        "2020-10-21",
+        "2020-10-22",
+        "2020-10-23",
+        "2020-10-24",
+        "2020-10-25",
+        "2020-10-26",
+        "2020-10-27",
+        "2020-10-28",
+        "2020-10-29",
+        "2020-10-30",
+        "2020-10-31",
+        "2020-11-01",
+        "2020-11-02",
+        "2020-11-03",
+        "2020-11-04",
+        "2020-11-05",
+        "2020-11-06",
+        "2020-11-07",
+        "2020-11-08",
+        "2020-11-09",
+        "2020-11-10",
+        "2020-11-11",
+        "2020-11-12",
+        "2020-11-13",
+        "2020-11-14",
+        "2020-11-15",
+        "2020-11-16",
+        "2020-11-17",
+        "2020-11-18",
+        "2020-11-19",
+        "2020-11-20",
+        "2020-11-21",
+        "2020-11-22",
+        "2020-11-23",
+        "2020-11-24",
+        "2020-11-25",
+        "2020-11-26",
+        "2020-11-27",
+        "2020-11-28",
+        "2020-11-29",
+        "2020-11-30",
+        "2020-12-01",
+        "2020-12-02",
+        "2020-12-03",
+        "2020-12-04",
+        "2020-12-05",
+        "2020-12-06",
+        "2020-12-07",
+        "2020-12-08",
+        "2020-12-09",
+        "2020-12-10",
+        "2020-12-11",
+        "2020-12-12",
+        "2020-12-13",
+        "2020-12-14",
+        "2020-12-15",
+        "2020-12-16",
+        "2020-12-17",
+        "2020-12-18",
+        "2020-12-19",
+        "2020-12-20",
+        "2020-12-21",
+        "2020-12-22",
+        "2020-12-23",
+        "2020-12-24",
+        "2020-12-25",
+        "2020-12-26",
+        "2020-12-27",
+        "2020-12-28",
+        "2020-12-29",
+        "2020-12-30",
+        "2020-12-31",
+        "2021-01-01",
+        "2021-01-02",
+        "2021-01-03",
+        "2021-01-04",
+        "2021-01-05",
+        "2021-01-06",
+        "2021-01-07",
+        "2021-01-08",
+        "2021-01-09",
+        "2021-01-10",
+        "2021-01-11",
+        "2021-01-12",
+        "2021-01-13",
+        "2021-01-14",
+        "2021-01-15",
+        "2021-01-16",
+        "2021-01-17",
+        "2021-01-18",
+        "2021-01-19",
+        "2021-01-20",
+        "2021-01-21",
+        "2021-01-22",
+        "2021-01-23",
+        "2021-01-24",
+        "2021-01-25",
+        "2021-01-26",
+        "2021-01-27",
+        "2021-01-28",
+        "2021-01-29",
+        "2021-01-30",
+        "2021-01-31",
+        "2021-02-01",
+        "2021-02-02",
+        "2021-02-03",
+        "2021-02-04",
+        "2021-02-05",
+        "2021-02-06",
+        "2021-02-07",
+        "2021-02-08",
+        "2021-02-09",
+        "2021-02-10",
+        "2021-02-11",
+        "2021-02-12",
+        "2021-02-13",
+        "2021-02-14",
+        "2021-02-15",
+        "2021-02-16",
+        "2021-02-17",
+        "2021-02-18",
+        "2021-02-19",
+        "2021-02-20",
+        "2021-02-21",
+        "2021-02-22",
+        "2021-02-23",
+        "2021-02-24",
+        "2021-02-25",
+        "2021-02-26",
+        "2021-02-27",
+        "2021-02-28",
+        "2021-03-01",
+        "2021-03-02",
+        "2021-03-03",
+        "2021-03-04",
+        "2021-03-05",
+        "2021-03-06",
+        "2021-03-07",
+        "2021-03-08",
+        "2021-03-09",
+        "2021-03-10",
+        "2021-03-11",
+        "2021-03-12",
+        "2021-03-13",
+        "2021-03-14",
+        "2021-03-15",
+        "2021-03-16",
+        "2021-03-17",
+        "2021-03-18",
+        "2021-03-19",
+        "2021-03-20",
+        "2021-03-21",
+        "2021-03-22",
+        "2021-03-23",
+        "2021-03-24",
+        "2021-03-25",
+        "2021-03-26",
+        "2021-03-27",
+        "2021-03-28",
+        "2021-03-29",
+        "2021-03-30",
+        "2021-03-31",
+        "2021-04-01",
+        "2021-04-02",
+        "2021-04-03",
+        "2021-04-04",
+        "2021-04-05",
+        "2021-04-06",
+      ];
+      const continents = [
+        "Africa",
+        "Asia",
+        "Europe",
+        "North America",
+        "Oceania",
+        "South America",
+      ];
+      const countries = [
+        "Afghanistan",
+        "Africa",
+        "Albania",
+        "Algeria",
+        "Andorra",
+        "Angola",
+        "Anguilla",
+        "Antigua and Barbuda",
+        "Argentina",
+        "Armenia",
+        "Asia",
+        "Australia",
+        "Austria",
+        "Azerbaijan",
+        "Bahamas",
+        "Bahrain",
+        "Bangladesh",
+        "Barbados",
+        "Belarus",
+        "Belgium",
+        "Belize",
+        "Benin",
+        "Bermuda",
+        "Bhutan",
+        "Bolivia",
+        "Bosnia and Herzegovina",
+        "Botswana",
+        "Brazil",
+        "Brunei",
+        "Bulgaria",
+        "Burkina Faso",
+        "Burundi",
+        "Cambodia",
+        "Cameroon",
+        "Canada",
+        "Cape Verde",
+        "Cayman Islands",
+        "Central African Republic",
+        "Chad",
+        "Chile",
+        "China",
+        "Colombia",
+        "Comoros",
+        "Congo",
+        "Costa Rica",
+        "Cote d'Ivoire",
+        "Croatia",
+        "Cuba",
+        "Cyprus",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Denmark",
+        "Djibouti",
+        "Dominica",
+        "Dominican Republic",
+        "Ecuador",
+        "Egypt",
+        "El Salvador",
+        "Equatorial Guinea",
+        "Eritrea",
+        "Estonia",
+        "Eswatini",
+        "Ethiopia",
+        "Europe",
+        "European Union",
+        "Faeroe Islands",
+        "Falkland Islands",
+        "Fiji",
+        "Finland",
+        "France",
+        "Gabon",
+        "Gambia",
+        "Georgia",
+        "Germany",
+        "Ghana",
+        "Gibraltar",
+        "Greece",
+        "Greenland",
+        "Grenada",
+        "Guatemala",
+        "Guernsey",
+        "Guinea",
+        "Guinea-Bissau",
+        "Guyana",
+        "Haiti",
+        "Honduras",
+        "Hong Kong",
+        "Hungary",
+        "Iceland",
+        "India",
+        "Indonesia",
+        "International",
+        "Iran",
+        "Iraq",
+        "Ireland",
+        "Isle of Man",
+        "Israel",
+        "Italy",
+        "Jamaica",
+        "Japan",
+        "Jersey",
+        "Jordan",
+        "Kazakhstan",
+        "Kenya",
+        "Kosovo",
+        "Kuwait",
+        "Kyrgyzstan",
+        "Laos",
+        "Latvia",
+        "Lebanon",
+        "Lesotho",
+        "Liberia",
+        "Libya",
+        "Liechtenstein",
+        "Lithuania",
+        "Luxembourg",
+        "Macao",
+        "Madagascar",
+        "Malawi",
+        "Malaysia",
+        "Maldives",
+        "Mali",
+        "Malta",
+        "Marshall Islands",
+        "Mauritania",
+        "Mauritius",
+        "Mexico",
+        "Micronesia (country)",
+        "Moldova",
+        "Monaco",
+        "Mongolia",
+        "Montenegro",
+        "Montserrat",
+        "Morocco",
+        "Mozambique",
+        "Myanmar",
+        "Namibia",
+        "Nepal",
+        "Netherlands",
+        "New Zealand",
+        "Nicaragua",
+        "Niger",
+        "Nigeria",
+        "North America",
+        "North Macedonia",
+        "Northern Cyprus",
+        "Norway",
+        "Oceania",
+        "Oman",
+        "Pakistan",
+        "Palestine",
+        "Panama",
+        "Papua New Guinea",
+        "Paraguay",
+        "Peru",
+        "Philippines",
+        "Poland",
+        "Portugal",
+        "Qatar",
+        "Romania",
+        "Russia",
+        "Rwanda",
+        "Saint Helena",
+        "Saint Kitts and Nevis",
+        "Saint Lucia",
+        "Saint Vincent and the Grenadines",
+        "Samoa",
+        "San Marino",
+        "Sao Tome and Principe",
+        "Saudi Arabia",
+        "Senegal",
+        "Serbia",
+        "Seychelles",
+        "Sierra Leone",
+        "Singapore",
+        "Slovakia",
+        "Slovenia",
+        "Solomon Islands",
+        "Somalia",
+        "South Africa",
+        "South America",
+        "South Korea",
+        "South Sudan",
+        "Spain",
+        "Sri Lanka",
+        "Sudan",
+        "Suriname",
+        "Sweden",
+        "Switzerland",
+        "Syria",
+        "Taiwan",
+        "Tajikistan",
+        "Tanzania",
+        "Thailand",
+        "Timor",
+        "Togo",
+        "Trinidad and Tobago",
+        "Tunisia",
+        "Turkey",
+        "Turks and Caicos Islands",
+        "Uganda",
+        "Ukraine",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States",
+        "Uruguay",
+        "Uzbekistan",
+        "Vanuatu",
+        "Vatican",
+        "Venezuela",
+        "Vietnam",
+        "World",
+        "Yemen",
+        "Zambia",
+        "Zimbabwe",
+      ];
+      /* variables, javascript and D3 functions go here */
+      var data; // define a container variable to hold your data
+      var dates;
+      var selectedDateIndex = 0;
+      var simulation;
+      var t;
+      var svg;
+      var width;
+      var height;
+      var baselineX;
+      var baselineY;
+      var ringRadius;
+      var increment = 1;
+      var pi = Math.PI;
+      var anchorPointCoords;
+      var slider;
+      var pause;
+      var play;
+      var selectedContinents = [];
+      var selectedCountries = [];
+      initializeGlobals = () => {
+        svgDim = Math.round(window.innerHeight);
+        svg = d3.select("#viz").attr("width", svgDim).attr("height", svgDim);
+        baselineX = svgDim / 2;
+        baselineY = svgDim / 2;
+        ringRadius = baselineX * 0.7;
+        anchorPointCoords = getAnchorPoints()
+          .map((angle) => getCoordinates(angle, ringRadius))
+          .map((coords) => [baselineX + coords[0], baselineY - coords[1]]);
+        slider = d3
+          .sliderHorizontal()
+          .min(0)
+          .max(allDates.length)
+          .step(1)
+          .width(svgDim * 0.9 - 40)
+          .height(100)
+          .displayValue(false)
+          .tickValues([])
+          .on("start", () => toggleTimer())
+          .on("end", (val) => {
+            selectedDateIndex = val;
+            toggleTimer();
+          });
+        getSvg(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/resources/pause.svg"
+        ).then((res) => {
+          pause = res.documentElement;
+          d3.select("#toggle").node().appendChild(pause);
+        });
+        getSvg(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/resources/play.svg"
+        ).then((res) => {
+          play = res.documentElement;
+        });
+        d3.select("#slider")
+          .attr("width", svgDim * 0.9)
+          .attr("height", 100)
+          .append("g")
+          .attr("transform", `translate(20,50)`)
+          .call(slider);
+
+        d3.select("#toggle")
+          .attr("width", 20)
+          .attr("height", 20)
+          .attr("fill-opacity", 0.5);
+      };
+
+      sortByDateAscending = (a, b) => {
+        // Dates will be cast to numbers automagically:
+        return a.dateObj - b.dateObj;
+      };
+      parseDateData = (date) => {
+        values = date[1];
+        valueDates = values.map((item) => item.date);
+        addedDates = allDates.reduce((acc, item) => {
+          if (!valueDates.includes(item)) {
+            return [...acc, { date: item, location: date[0], isNull: true }];
+          }
+          return acc;
+        }, []);
+        combined = [...date[1], ...addedDates];
+        combined = combined.map((data) => ({
+          ...data,
+          dateObj: new Date(data.date),
+        }));
+        combined = combined.sort(sortByDateAscending);
+        return { key: date[0], value: combined };
+      };
+      getSvg = (url, variableName) => {
+        return d3.xml(url, (e, documentFragment) => {
+          return documentFragment.getElementsByTagName("svg")[0];
+        });
+      };
+      getData = () => {
+        d3.csv(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/data/parsed.csv"
+        ).then((csvdata) => {
+          // rawData = csvdata;
+          // dates =d3.map(data, function(d){return d.roadname;}).keys()
+          data = d3.group(csvdata, (d) => d["location"]);
+          data = d3.map(data, parseDateData);
+          initializeGlobals();
+          draw();
+        });
+      };
+      getCoordinates = (angle, radius) => {
+        x = Math.cos(angle) * radius;
+        y = Math.sin(angle) * radius;
+        return [x, y];
+      };
+
+      getAnchorPoints = () => {
+        anchorPoints = [];
+        startingPoint = pi / 2;
+        for (i = 0; i < 10; i++) {
+          anchorPoints.push(startingPoint);
+          startingPoint -= (2 * pi) / 10;
+        }
+        return anchorPoints;
+      };
+      getSize = (point) => {
+        if (point?.isNull || selectedDateIndex == 0) return 1;
+        return (
+          5 + (Math.sqrt(Number(point.new_cases_smoothed_per_million)) || 0)
+        );
+      };
+      getOpacity = (point) => {
+        if (point.isNull) return 0.1;
+        //Check country first
+
+        res = selectedCountries.includes(point.location);
+        if (res) return 1;
+        if (selectedCountries.length) return 0.1;
+        res =
+          selectedContinents.length == 0 ||
+          selectedContinents.includes(point.continent)
+            ? 1
+            : 0.1;
+        return res;
+      };
+      getColor = (point) => {
+        color = "#e3e3e3";
+        continent = point.continent;
+        switch (continent) {
+          case "Africa":
+            color = "#f1fa8c";
+            break;
+          case "Asia":
+            color = "#ff5555";
+            break;
+          case "Europe":
+            color = "#bd93f9";
+            break;
+          case "North America":
+            color = "#ff79c6";
+            break;
+          case "Oceania":
+            color = "#ffb86c";
+            break;
+          case "South America":
+            color = "#50fa7b";
+            break;
+        }
+        return color;
+      };
+      getForceCenter = (point) => {
+        const center = [baselineX, baselineY];
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc == 0) return [center[0], center[1]];
+          angle = pi / 2 - 2 * pi * vacc;
+          coords = getCoordinates(angle, ringRadius * 0.8);
+          //console.log(ringRadius);
+          console.log(angle);
+          return [baselineX + coords[0], baselineY - coords[1]];
+        }
+        return [center[0], center[1]];
+      };
+      getStrength = (point) => {
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc >= 1) return 10;
+        }
+        return 0.2;
+      };
+      getStrengthCollide = (point) => {
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc >= 1) return 0;
+        }
+        return -30;
+      };
+      getFill = (point) => (point.isNull ? "#e3e3e3" : getColor(point));
+      getSelectedValues = (context) => {
+        var values = [];
+        selected = d3
+          .select(context) // select the select
+          .selectAll("option:checked") // select the selected values
+          .each(function () {
+            values.push(this.value);
+          }); // for each of those, get its value
+        return values;
+      };
+      draw = () => {
+        console.log(data);
+        svg
+          .append("text")
+          .attr("class", "percentVacc")
+          .attr("x", baselineX)
+          .attr("y", baselineY - ringRadius - 40)
+          .attr("text-anchor", "middle")
+          .text("Percent Vaccinated");
+        svg
+          .append("circle")
+          .attr("cx", baselineX)
+          .attr("cy", baselineY)
+          .attr("r", ringRadius)
+          .attr("stroke", "#e3e3e3")
+          .attr("fill", "#ffffff");
+        svg
+          .selectAll(".anchorPoints")
+          .data(anchorPointCoords)
+          .join("circle")
+          .attr("cx", (d) => d[0])
+          .attr("cy", (d) => d[1])
+          .attr("r", 20)
+          .attr("class", "anchorPoints")
+          .attr("stroke", "#e3e3e3")
+          .attr("fill", "#ffffff")
+          .attr("fill-opacity", 0.8);
+
+        svg
+          .selectAll(".anchorPointsText")
+          .data(anchorPointCoords)
+          .join("text")
+          .attr("text-anchor", "middle")
+          .attr("class", "anchorPointsText")
+          .attr("x", (d) => d[0])
+          .attr("y", (d) => d[1] + 4)
+          .text((d, i) => `${i == 0 ? 1 : i * 10}%`);
+        var simulation = d3
+          .forceSimulation()
+          .force(
+            "x",
+            d3
+              .forceX()
+              .x((d) => getForceCenter(d.value[selectedDateIndex])[0])
+              .strength((d) => getStrength(d.value[selectedDateIndex]))
+          )
+          .force(
+            "y",
+            d3
+              .forceY()
+              .y((d) => getForceCenter(d.value[selectedDateIndex])[1])
+              .strength((d) => getStrength(d.value[selectedDateIndex]))
+          )
+          .force(
+            "collide",
+            d3.forceCollide().radius((d) => getSize(d.value[selectedDateIndex]))
+          )
+          .force(
+            "charge",
+            d3
+              .forceManyBody()
+              .strength((d) => getStrengthCollide(d.value[selectedDateIndex]))
+          );
+        var bubbles = svg
+          .selectAll(".points")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr("r", (d) => getSize(d.value[selectedDateIndex]))
+          .attr("fill", (d) => getFill(d.value[selectedDateIndex]))
+          .attr("fill-opacity", (d) => getOpacity(d.value[selectedDateIndex]));
+        d3.select("body")
+          .append("div")
+          .attr("id", "tooltip")
+          .attr("style", "position: absolute; opacity: 0;width: 200px");
+
+        tooltip = d3.select("#tooltip");
+        tooltip.append("div").attr("id", "tt-header");
+        ttHeader = d3
+          .select("#tt-header")
+          .attr(
+            "style",
+            "display:flex;flex-direction:row; align-items:center;justify-content:space-between"
+          );
+        ttHeader.append("div").attr("id", "tt-header-left").style("flex");
+        ttHeader.append("div").attr("id", "tt-header-right").style("flex");
+        tooltip.append("div").attr("id", "tt-subheader");
+
+        simulation.nodes(data).on("tick", ticked);
+        bubbles.on("mouseover", (e, d) => {
+          dataPoint = d.value[selectedDateIndex];
+          if (!dataPoint.isNull) {
+            console.log(d);
+            console.log(e.pageX);
+            console.log(e.pageY);
+            d3.select("#tooltip")
+              .transition()
+              .duration(200)
+              .style("opacity", 1);
+            d3.select("#tooltip")
+              .style("left", e.pageX - 100 + "px")
+              .style("top", e.pageY - 80 + "px");
+            d3.select("#tt-header-left").text(d.key);
+            d3.select("#tt-header-right")
+              .text(dataPoint.continent)
+              .style("color", getFill(dataPoint));
+          }
+          d3.select("#tt-subheader").text(
+            `Cases Per Million: ${Math.round(
+              dataPoint.new_cases_smoothed_per_million
+            )}`
+          );
+        });
+        bubbles.on("mousemove", (e, d) => {
+          d3.select("#tooltip")
+            .style("left", e.pageX - 100 + "px")
+            .style("top", e.pageY - 125 + "px");
+        });
+        bubbles.on("mouseout", (e, d) => {
+          d3.select("#tooltip").style("opacity", 0);
+        });
+
+        d3.select("#continentMenu").on("change", function (event) {
+          let values = getSelectedValues(this);
+          selectedContinents = values;
+          selectedCountries = [];
+          d3.select("#countryMenu").selectAll("option").remove();
+          d3.select("#countryMenu")
+            .selectAll("option")
+            .data(countries)
+            .join("option")
+            .text((d) => d);
+          bubbles
+            .filter((d) => !d.value[selectedDateIndex].isNull)
+            .transition()
+            .duration(200)
+            .attr("fill-opacity", (d) =>
+              getOpacity(d.value[selectedDateIndex])
+            );
+        });
+        d3.select("#countryMenu").on("change", function (event) {
+          let values = getSelectedValues(this);
+          selectedCountries = values;
+          selectedContinents = [];
+          d3.select("#continentMenu").selectAll("option").remove();
+          d3.select("#continentMenu")
+            .selectAll("option")
+            .data(continents)
+            .join("option")
+            .text((d) => d);
+          // .attr("selected", (e) => console.log(e));
+          bubbles
+            .filter((d) => !d.value[selectedDateIndex].isNull)
+            .transition()
+            .duration(200)
+            .attr("fill-opacity", (d) =>
+              getOpacity(d.value[selectedDateIndex])
+            );
+        });
+
+        // create a dropdown select list from all of the states in the data
+        continentSelects = d3
+          .select("#continentMenu")
+          .selectAll("option")
+          .data(continents)
+          .join("option")
+          .text((d) => d);
+        countrySelects = d3
+          .select("#countryMenu")
+          .selectAll("option")
+          .data(countries)
+          .join("option")
+          .text((d) => d);
+
+        function ticked(i) {
+          bubbles
+            .attr("cx", function (d) {
+              return d.x;
+            })
+            .attr("cy", function (d) {
+              return d.y;
+            });
+        }
+        timer = () => {
+          return d3.interval(function (elapsed) {
+            if (selectedDateIndex + increment >= allDates.length) {
+              selectedDateIndex = allDates.length - 1;
+            } else {
+              selectedDateIndex += increment;
+            }
+            console.log(selectedDateIndex);
+            updateDate();
+            simulation.alpha(0.5).alphaTarget(0.3).restart();
+
+            simulation.force("x").initialize(data);
+            simulation.force("y").initialize(data);
+            simulation.force("collide").initialize(data);
+            bubbles
+              .transition()
+              .duration(200)
+              .attr("r", (d) => getSize(d.value[selectedDateIndex]))
+              .attr("fill-opacity", (d) =>
+                getOpacity(d.value[selectedDateIndex])
+              )
+              .attr("fill", (d) => getFill(d.value[selectedDateIndex]));
+            //   .attr("fill", function (d) {
+            //     return colorScale(d[year]);
+            //   });
+
+            slider.value(selectedDateIndex);
+            if (selectedDateIndex == allDates.length - 1) {
+              t.stop();
+            }
+          }, 1000);
+        };
+        isPlaying = false;
+        toggleTimer = () => {
+          if (isPlaying) {
+            t.stop();
+            isPlaying = false;
+          } else {
+            t = timer();
+            isPlaying = true;
+          }
+        };
+        toggleButton = () => {
+          nextIcon = isPlaying ? play : pause;
+          d3.select("#toggle").html("");
+          d3.select("#toggle").node().appendChild(nextIcon);
+          toggleTimer();
+        };
+        updateDate = () => {
+          d3.select("#date").text(
+            new Date(allDates[selectedDateIndex]).toDateString()
+          );
+        };
+        toggleTimer();
+        svg.selectAll(".anchorPoints").raise();
+        svg.selectAll(".anchorPointsText").raise();
+        svg.select(".percentVacc").raise();
+      };
+    </script>
+  </head>
+  <body onload="getData()">
+    <div>
+      <div>
+        <div class="header">The Promise of Vaccines</div>
+        <div class="subheader">
+          The International Resillience after a year of COVID-19.
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: row">
+        <div>
+          <div style="margin-top: 20px">
+            <div style="font-size: 18px; font-weight: bold">Filters</div>
+            <div style="display: flex; flex-direction: row; margin: 10px">
+              <div>
+                <div class="menuHeader">Filter Continent</div>
+                <select multiple id="continentMenu"></select>
+              </div>
+              <div style="margin-left: 10px">
+                <div class="menuHeader">Filter Country</div>
+                <select multiple id="countryMenu"></select>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 20px">
+            <div style="font-size: 18px; font-weight: bold">Variable</div>
+            <!-- <div style="display: flex; flex-direction: row; margin: 10px">
+            <div>
+              <div class="menuHeader">Filter Continent</div>
+              <select multiple id="continentMenu"></select>
+            </div>
+            <div style="margin-left: 10px">
+              <div class="menuHeader">Filter Country</div>
+              <select multiple id="countryMenu"></select>
+            </div>
+          </div> -->
+          </div>
+        </div>
+        <div
+          style="
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+          "
+        >
+          <svg id="viz" width="0" height="0"></svg>
+        </div>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <div id="date"></div>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            flex: 1;
+          "
+        >
+          <svg
+            id="toggle"
+            onclick="toggleButton()"
+            style="cursor: pointer"
+            width="0"
+            height="0"
+          ></svg>
+
+          <svg id="slider" width="0" height="0"></svg>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
