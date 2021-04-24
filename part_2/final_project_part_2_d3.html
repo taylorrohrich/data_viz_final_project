@@ -9,11 +9,29 @@
         font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
           "Lucida Sans", Arial, sans-serif;
       }
-      select {
+      .button {
+        cursor: pointer;
+        margin: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background-color: white;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        border-color: #e3e3e3;
+      }
+      .filterMenus select {
         height: 150px;
         width: 200px;
         border-width: 1px;
         border-radius: 5px;
+        border-color: #e3e3e3;
+      }
+      .varMenus select {
+        padding: 5px;
+        border-width: 1px;
+        border-radius: 5px;
+        width: 200px;
         border-color: #e3e3e3;
       }
       option {
@@ -41,7 +59,9 @@
       #tt-header-right {
         font-size: 14px;
       }
-      #tt-subheader {
+      #tt-subheader,
+      #tt-subheader-2,
+      #tt-subheader-1 {
         margin-top: 10px;
         font-size: 14px;
         opacity: 0.8;
@@ -751,9 +771,22 @@
         "Zimbabwe",
       ];
       /* variables, javascript and D3 functions go here */
+      variables = [
+        "Continent",
+        "Extreme Poverty",
+        "Human Development Index",
+        "Median Age",
+        "Stringency Index",
+      ];
+      varRanges = {
+        "Extreme Poverty": [0, 78, true],
+        "Human Development Index": [0, 1, false],
+        "Median Age": [15, 50, true],
+        "Stringency Index": [0, 100, false],
+      };
       var data; // define a container variable to hold your data
       var dates;
-      var selectedDateIndex = 0;
+      var selectedDateIndex = 345;
       var simulation;
       var t;
       var svg;
@@ -770,8 +803,11 @@
       var play;
       var selectedContinents = [];
       var selectedCountries = [];
+      var selectedVar = "Continent";
+      var isPlaying = false;
+      var scaleValue = 0.8;
       initializeGlobals = () => {
-        svgDim = Math.round(window.innerHeight);
+        svgDim = Math.round(window.innerHeight * scaleValue);
         svg = d3.select("#viz").attr("width", svgDim).attr("height", svgDim);
         baselineX = svgDim / 2;
         baselineY = svgDim / 2;
@@ -816,7 +852,6 @@
           .attr("height", 20)
           .attr("fill-opacity", 0.5);
       };
-
       sortByDateAscending = (a, b) => {
         // Dates will be cast to numbers automagically:
         return a.dateObj - b.dateObj;
@@ -845,7 +880,7 @@
       };
       getData = () => {
         d3.csv(
-          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/data/parsed.csv"
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/data/parsed_new.csv"
         ).then((csvdata) => {
           // rawData = csvdata;
           // dates =d3.map(data, function(d){return d.roadname;}).keys()
@@ -873,7 +908,8 @@
       getSize = (point) => {
         if (point?.isNull || selectedDateIndex == 0) return 1;
         return (
-          5 + (Math.sqrt(Number(point.new_cases_smoothed_per_million)) || 0)
+          (5 + (Math.sqrt(Number(point.new_cases_smoothed_per_million)) || 0)) *
+          scaleValue
         );
       };
       getOpacity = (point) => {
@@ -890,12 +926,46 @@
             : 0.1;
         return res;
       };
+      getSpeed = (value) => {
+        increment = Number(value[0]);
+        d3.selectAll(".speedButton").attr("style", (e, i) =>
+          Math.log2(increment) == i
+            ? "color:white;background-color:#e3e3e3"
+            : ""
+        );
+      };
+      getDate = (value) => {
+        let dateIndex = null;
+
+        switch (value) {
+          case "Start":
+            dateIndex = 0;
+            selectedDateIndex = 0;
+            break;
+          case "Beginning of Vaccination":
+            dateIndex = 1;
+            selectedDateIndex = 345;
+            break;
+          case "End":
+            dateIndex = 2;
+            selectedDateIndex = allDates.length - 2;
+            break;
+          default:
+            dateIndex = 0;
+            selectedDateIndex = 0;
+            break;
+        }
+        if (!isPlaying) toggleTimer();
+        d3.selectAll(".dateButton").attr("style", (e, i) =>
+          dateIndex == i ? "color:white;background-color:#e3e3e3" : ""
+        );
+      };
       getColor = (point) => {
         color = "#e3e3e3";
         continent = point.continent;
         switch (continent) {
           case "Africa":
-            color = "#f1fa8c";
+            color = "#6272a4";
             break;
           case "Asia":
             color = "#ff5555";
@@ -922,8 +992,6 @@
           if (vacc == 0) return [center[0], center[1]];
           angle = pi / 2 - 2 * pi * vacc;
           coords = getCoordinates(angle, ringRadius * 0.8);
-          //console.log(ringRadius);
-          console.log(angle);
           return [baselineX + coords[0], baselineY - coords[1]];
         }
         return [center[0], center[1]];
@@ -942,7 +1010,78 @@
         }
         return -30;
       };
-      getFill = (point) => (point.isNull ? "#e3e3e3" : getColor(point));
+      // variables = [
+      //   "Continent",
+      //   "Poverty Level",
+      //   "Human Development Index",
+      //   "Median Age",
+      //   "Stringency Index",
+      // ];
+      getGradientColor = function (start_color, end_color, percent) {
+        // strip the leading # if it's there
+        start_color = start_color.replace(/^\s*#|\s*$/g, "");
+        end_color = end_color.replace(/^\s*#|\s*$/g, "");
+
+        // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+        if (start_color.length == 3) {
+          start_color = start_color.replace(/(.)/g, "$1$1");
+        }
+
+        if (end_color.length == 3) {
+          end_color = end_color.replace(/(.)/g, "$1$1");
+        }
+
+        // get colors
+        var start_red = parseInt(start_color.substr(0, 2), 16),
+          start_green = parseInt(start_color.substr(2, 2), 16),
+          start_blue = parseInt(start_color.substr(4, 2), 16);
+
+        var end_red = parseInt(end_color.substr(0, 2), 16),
+          end_green = parseInt(end_color.substr(2, 2), 16),
+          end_blue = parseInt(end_color.substr(4, 2), 16);
+
+        // calculate new color
+        var diff_red = end_red - start_red;
+        var diff_green = end_green - start_green;
+        var diff_blue = end_blue - start_blue;
+
+        diff_red = (diff_red * percent + start_red).toString(16).split(".")[0];
+        diff_green = (diff_green * percent + start_green)
+          .toString(16)
+          .split(".")[0];
+        diff_blue = (diff_blue * percent + start_blue)
+          .toString(16)
+          .split(".")[0];
+
+        // ensure 2 digits by color
+        if (diff_red.length == 1) diff_red = "0" + diff_red;
+        if (diff_green.length == 1) diff_green = "0" + diff_green;
+        if (diff_blue.length == 1) diff_blue = "0" + diff_blue;
+
+        return "#" + diff_red + diff_green + diff_blue;
+      };
+
+      getGradient = (point) => {
+        varName = selectedVar.toLowerCase().split(" ").join("_");
+        varVal = Number(point[varName]);
+
+        const [varMin, varMax, isInverse] = varRanges[selectedVar];
+
+        percent = Math.min(Math.max((varVal - varMin) / varMax, 0), 1);
+        color = getGradientColor(
+          "#ff5555",
+          "#50fa7b",
+          isInverse ? 1 - percent : percent
+        );
+        return color;
+      };
+      getFill = (point) => {
+        if (point.isNull) return "#e3e3e3";
+        color = "#e3e3e3";
+        return selectedVar == "Continent"
+          ? getColor(point)
+          : getGradient(point);
+      };
       getSelectedValues = (context) => {
         var values = [];
         selected = d3
@@ -955,6 +1094,13 @@
       };
       draw = () => {
         console.log(data);
+        d3.selectAll(".speedButton")
+          .filter((e, i) => i == 0)
+          .attr("style", "color:white;background-color:#e3e3e3");
+        d3.selectAll(".dateButton")
+          .filter((e, i) => i == 1)
+          .attr("style", "color:white;background-color:#e3e3e3");
+
         svg
           .append("text")
           .attr("class", "percentVacc")
@@ -1040,39 +1186,80 @@
         ttHeader.append("div").attr("id", "tt-header-left").style("flex");
         ttHeader.append("div").attr("id", "tt-header-right").style("flex");
         tooltip.append("div").attr("id", "tt-subheader");
-
+        tooltip.append("div").attr("id", "tt-subheader-1");
+        tooltip.append("div").attr("id", "tt-subheader-2");
+        d3.selectAll(".speedButton").on("click", (e) =>
+          getSpeed(e.target.innerText)
+        );
+        d3.selectAll(".dateButton").on("click", (e) =>
+          getDate(e.target.innerText)
+        );
         simulation.nodes(data).on("tick", ticked);
         bubbles.on("mouseover", (e, d) => {
-          dataPoint = d.value[selectedDateIndex];
-          if (!dataPoint.isNull) {
-            console.log(d);
-            console.log(e.pageX);
-            console.log(e.pageY);
-            d3.select("#tooltip")
-              .transition()
-              .duration(200)
-              .style("opacity", 1);
-            d3.select("#tooltip")
-              .style("left", e.pageX - 100 + "px")
-              .style("top", e.pageY - 80 + "px");
-            d3.select("#tt-header-left").text(d.key);
-            d3.select("#tt-header-right")
-              .text(dataPoint.continent)
+          setTimeout(() => {
+            d3.select("#tooltip").style("opacity", 0);
+            dataPoint = d.value[selectedDateIndex];
+            if (!dataPoint.isNull) {
+              console.log(d);
+              console.log(e.pageX);
+              console.log(e.pageY);
+              d3.select("#tooltip")
+                .transition()
+                .duration(200)
+                .style("opacity", 1);
+              // d3.select("#tooltip")
+              //   .style("left", e.pageX - 100 + "px")
+              //   .style("top", e.pageY - 80 + "px");
+              d3.select("#tt-header-left").text(d.key);
+              d3.select("#tt-header-right")
+                .text(dataPoint.continent)
+                .style(
+                  "color",
+                  selectedVar == "Continent" ? getFill(dataPoint) : "black"
+                );
+            }
+            d3.select("#tt-subheader").text(
+              `Cases Per Million: ${Math.round(
+                dataPoint.new_cases_smoothed_per_million
+              )}`
+            );
+            d3.select("#tt-subheader-1").text(
+              `Pop. Percent Vaccinated: ${Math.ceil(
+                dataPoint.people_vaccinated_per_hundred
+              )}%`
+            );
+
+            d3.select("#tt-subheader-2")
+              .text(
+                selectedVar == "Continent"
+                  ? ""
+                  : `${selectedVar}: ${Math.round(
+                      dataPoint[selectedVar.toLowerCase().split(" ").join("_")]
+                    )}`
+              )
               .style("color", getFill(dataPoint));
-          }
-          d3.select("#tt-subheader").text(
-            `Cases Per Million: ${Math.round(
-              dataPoint.new_cases_smoothed_per_million
-            )}`
-          );
+          }, 200);
         });
+
         bubbles.on("mousemove", (e, d) => {
           d3.select("#tooltip")
             .style("left", e.pageX - 100 + "px")
-            .style("top", e.pageY - 125 + "px");
+            .style(
+              "top",
+              e.pageY - (selectedVar != "Continent" ? 180 : 150) + "px"
+            );
         });
         bubbles.on("mouseout", (e, d) => {
-          d3.select("#tooltip").style("opacity", 0);
+          setTimeout(
+            () =>
+              d3
+                .select("#tooltip")
+                .transition()
+                .duration(200)
+                .style("opacity", 0),
+            200
+          );
+          //d3.select("#tooltip").style("opacity", 0);
         });
 
         d3.select("#continentMenu").on("change", function (event) {
@@ -1113,6 +1300,16 @@
             );
         });
 
+        d3.select("#varMenu").on("change", function (event) {
+          let value = getSelectedValues(this)[0];
+          selectedVar = value;
+          bubbles
+            .filter((d) => !d.value[selectedDateIndex].isNull)
+            .transition()
+            .duration(200)
+            .attr("fill", (d) => getFill(d.value[selectedDateIndex]));
+        });
+
         // create a dropdown select list from all of the states in the data
         continentSelects = d3
           .select("#continentMenu")
@@ -1124,6 +1321,12 @@
           .select("#countryMenu")
           .selectAll("option")
           .data(countries)
+          .join("option")
+          .text((d) => d);
+        variableSelects = d3
+          .select("#varMenu")
+          .selectAll("option")
+          .data(variables)
           .join("option")
           .text((d) => d);
 
@@ -1165,10 +1368,10 @@
             slider.value(selectedDateIndex);
             if (selectedDateIndex == allDates.length - 1) {
               t.stop();
+              isPlaying = false;
             }
           }, 1000);
         };
-        isPlaying = false;
         toggleTimer = () => {
           if (isPlaying) {
             t.stop();
@@ -1208,7 +1411,10 @@
         <div>
           <div style="margin-top: 20px">
             <div style="font-size: 18px; font-weight: bold">Filters</div>
-            <div style="display: flex; flex-direction: row; margin: 10px">
+            <div
+              class="filterMenus"
+              style="display: flex; flex-direction: row; margin: 10px"
+            >
               <div>
                 <div class="menuHeader">Filter Continent</div>
                 <select multiple id="continentMenu"></select>
@@ -1219,18 +1425,38 @@
               </div>
             </div>
           </div>
-          <div style="margin-top: 20px">
+          <div style="margin-top: 20px" class="varMenus">
             <div style="font-size: 18px; font-weight: bold">Variable</div>
-            <!-- <div style="display: flex; flex-direction: row; margin: 10px">
-            <div>
-              <div class="menuHeader">Filter Continent</div>
-              <select multiple id="continentMenu"></select>
+            <div style="display: flex; flex-direction: row; margin: 10px">
+              <div>
+                <div class="menuHeader">Color</div>
+                <select id="varMenu" style="font-size: 20px"></select>
+              </div>
             </div>
-            <div style="margin-left: 10px">
-              <div class="menuHeader">Filter Country</div>
-              <select multiple id="countryMenu"></select>
+          </div>
+          <div style="margin-top: 20px" class="varTime">
+            <div style="font-size: 18px; font-weight: bold">Time</div>
+            <div style="display: flex; flex-direction: row; margin: 10px">
+              <div>
+                <div class="menuHeader">Speed</div>
+                <div style="display: flex; flex-direction: row">
+                  <div class="button speedButton">1x</div>
+                  <div class="button speedButton">2x</div>
+                  <div class="button speedButton">4x</div>
+                  <div class="button speedButton">8x</div>
+                </div>
+              </div>
             </div>
-          </div> -->
+            <div style="display: flex; flex-direction: row; margin: 10px">
+              <div>
+                <div class="menuHeader">Important Dates</div>
+                <div style="display: flex; flex-direction: row">
+                  <div class="button dateButton">Start</div>
+                  <div class="button dateButton">Beginning of Vaccination</div>
+                  <div class="button dateButton">End</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div
