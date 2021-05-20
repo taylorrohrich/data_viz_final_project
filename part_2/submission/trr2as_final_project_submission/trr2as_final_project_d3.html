@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Data Visualization Final Project</title>
+
+    <style>
+      body {
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+          "Lucida Sans", Arial, sans-serif;
+      }
+      .button {
+        cursor: pointer;
+        margin: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background-color: white;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        border-color: #e3e3e3;
+      }
+      .filterMenus select {
+        height: 150px;
+        width: 200px;
+        border-width: 1px;
+        border-radius: 5px;
+        border-color: #e3e3e3;
+      }
+      .varMenus select {
+        padding: 5px;
+        border-width: 1px;
+        border-radius: 5px;
+        width: 200px;
+        border-color: #e3e3e3;
+      }
+      option {
+        padding: 5px;
+        font-size: 20px;
+      }
+      .header {
+        font-size: 30px;
+        font-weight: bold;
+      }
+      .subheader {
+        font-size: 20px;
+        opacity: 0.8;
+      }
+      .name {
+        margin-top: 10px;
+        font-size: 16px;
+        opacity: 0.5;
+      }
+      #tooltip {
+        background-color: #ffffff;
+        border-color: #e3e3e3;
+        border-width: 1px;
+        border-style: solid;
+        padding: 10px;
+      }
+      #tt-header {
+        font-size: 18px;
+      }
+      #tt-header-right {
+        font-size: 14px;
+      }
+      #tt-subheader,
+      #tt-subheader-2,
+      #tt-subheader-1 {
+        margin-top: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+      .anchorPointsText {
+        font-size: 12px;
+        opacity: 0.6;
+        z-index: 9999;
+      }
+      .percentVacc {
+        font-weight: bold;
+        font-size: 14px;
+        z-index: 9999;
+      }
+      .circ {
+        margin-left: 3px;
+        margin-right: 3px;
+        border-radius: 100%;
+        background-color: #e3e3e3;
+      }
+      .sizeMin,
+      .sizeMax {
+        margin-left: 3px;
+        margin-right: 3px;
+      }
+    </style>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+    <script type="text/javascript">
+      allDates = [
+        "2020-01-01",
+        "2020-01-02",
+        "2020-01-03",
+        "2020-01-04",
+        "2020-01-05",
+        "2020-01-06",
+        "2020-01-07",
+        "2020-01-08",
+        "2020-01-09",
+        "2020-01-10",
+        "2020-01-11",
+        "2020-01-12",
+        "2020-01-13",
+        "2020-01-14",
+        "2020-01-15",
+        "2020-01-16",
+        "2020-01-17",
+        "2020-01-18",
+        "2020-01-19",
+        "2020-01-20",
+        "2020-01-21",
+        "2020-01-22",
+        "2020-01-23",
+        "2020-01-24",
+        "2020-01-25",
+        "2020-01-26",
+        "2020-01-27",
+        "2020-01-28",
+        "2020-01-29",
+        "2020-01-30",
+        "2020-01-31",
+        "2020-02-01",
+        "2020-02-02",
+        "2020-02-03",
+        "2020-02-04",
+        "2020-02-05",
+        "2020-02-06",
+        "2020-02-07",
+        "2020-02-08",
+        "2020-02-09",
+        "2020-02-10",
+        "2020-02-11",
+        "2020-02-12",
+        "2020-02-13",
+        "2020-02-14",
+        "2020-02-15",
+        "2020-02-16",
+        "2020-02-17",
+        "2020-02-18",
+        "2020-02-19",
+        "2020-02-20",
+        "2020-02-21",
+        "2020-02-22",
+        "2020-02-23",
+        "2020-02-24",
+        "2020-02-25",
+        "2020-02-26",
+        "2020-02-27",
+        "2020-02-28",
+        "2020-02-29",
+        "2020-03-01",
+        "2020-03-02",
+        "2020-03-03",
+        "2020-03-04",
+        "2020-03-05",
+        "2020-03-06",
+        "2020-03-07",
+        "2020-03-08",
+        "2020-03-09",
+        "2020-03-10",
+        "2020-03-11",
+        "2020-03-12",
+        "2020-03-13",
+        "2020-03-14",
+        "2020-03-15",
+        "2020-03-16",
+        "2020-03-17",
+        "2020-03-18",
+        "2020-03-19",
+        "2020-03-20",
+        "2020-03-21",
+        "2020-03-22",
+        "2020-03-23",
+        "2020-03-24",
+        "2020-03-25",
+        "2020-03-26",
+        "2020-03-27",
+        "2020-03-28",
+        "2020-03-29",
+        "2020-03-30",
+        "2020-03-31",
+        "2020-04-01",
+        "2020-04-02",
+        "2020-04-03",
+        "2020-04-04",
+        "2020-04-05",
+        "2020-04-06",
+        "2020-04-07",
+        "2020-04-08",
+        "2020-04-09",
+        "2020-04-10",
+        "2020-04-11",
+        "2020-04-12",
+        "2020-04-13",
+        "2020-04-14",
+        "2020-04-15",
+        "2020-04-16",
+        "2020-04-17",
+        "2020-04-18",
+        "2020-04-19",
+        "2020-04-20",
+        "2020-04-21",
+        "2020-04-22",
+        "2020-04-23",
+        "2020-04-24",
+        "2020-04-25",
+        "2020-04-26",
+        "2020-04-27",
+        "2020-04-28",
+        "2020-04-29",
+        "2020-04-30",
+        "2020-05-01",
+        "2020-05-02",
+        "2020-05-03",
+        "2020-05-04",
+        "2020-05-05",
+        "2020-05-06",
+        "2020-05-07",
+        "2020-05-08",
+        "2020-05-09",
+        "2020-05-10",
+        "2020-05-11",
+        "2020-05-12",
+        "2020-05-13",
+        "2020-05-14",
+        "2020-05-15",
+        "2020-05-16",
+        "2020-05-17",
+        "2020-05-18",
+        "2020-05-19",
+        "2020-05-20",
+        "2020-05-21",
+        "2020-05-22",
+        "2020-05-23",
+        "2020-05-24",
+        "2020-05-25",
+        "2020-05-26",
+        "2020-05-27",
+        "2020-05-28",
+        "2020-05-29",
+        "2020-05-30",
+        "2020-05-31",
+        "2020-06-01",
+        "2020-06-02",
+        "2020-06-03",
+        "2020-06-04",
+        "2020-06-05",
+        "2020-06-06",
+        "2020-06-07",
+        "2020-06-08",
+        "2020-06-09",
+        "2020-06-10",
+        "2020-06-11",
+        "2020-06-12",
+        "2020-06-13",
+        "2020-06-14",
+        "2020-06-15",
+        "2020-06-16",
+        "2020-06-17",
+        "2020-06-18",
+        "2020-06-19",
+        "2020-06-20",
+        "2020-06-21",
+        "2020-06-22",
+        "2020-06-23",
+        "2020-06-24",
+        "2020-06-25",
+        "2020-06-26",
+        "2020-06-27",
+        "2020-06-28",
+        "2020-06-29",
+        "2020-06-30",
+        "2020-07-01",
+        "2020-07-02",
+        "2020-07-03",
+        "2020-07-04",
+        "2020-07-05",
+        "2020-07-06",
+        "2020-07-07",
+        "2020-07-08",
+        "2020-07-09",
+        "2020-07-10",
+        "2020-07-11",
+        "2020-07-12",
+        "2020-07-13",
+        "2020-07-14",
+        "2020-07-15",
+        "2020-07-16",
+        "2020-07-17",
+        "2020-07-18",
+        "2020-07-19",
+        "2020-07-20",
+        "2020-07-21",
+        "2020-07-22",
+        "2020-07-23",
+        "2020-07-24",
+        "2020-07-25",
+        "2020-07-26",
+        "2020-07-27",
+        "2020-07-28",
+        "2020-07-29",
+        "2020-07-30",
+        "2020-07-31",
+        "2020-08-01",
+        "2020-08-02",
+        "2020-08-03",
+        "2020-08-04",
+        "2020-08-05",
+        "2020-08-06",
+        "2020-08-07",
+        "2020-08-08",
+        "2020-08-09",
+        "2020-08-10",
+        "2020-08-11",
+        "2020-08-12",
+        "2020-08-13",
+        "2020-08-14",
+        "2020-08-15",
+        "2020-08-16",
+        "2020-08-17",
+        "2020-08-18",
+        "2020-08-19",
+        "2020-08-20",
+        "2020-08-21",
+        "2020-08-22",
+        "2020-08-23",
+        "2020-08-24",
+        "2020-08-25",
+        "2020-08-26",
+        "2020-08-27",
+        "2020-08-28",
+        "2020-08-29",
+        "2020-08-30",
+        "2020-08-31",
+        "2020-09-01",
+        "2020-09-02",
+        "2020-09-03",
+        "2020-09-04",
+        "2020-09-05",
+        "2020-09-06",
+        "2020-09-07",
+        "2020-09-08",
+        "2020-09-09",
+        "2020-09-10",
+        "2020-09-11",
+        "2020-09-12",
+        "2020-09-13",
+        "2020-09-14",
+        "2020-09-15",
+        "2020-09-16",
+        "2020-09-17",
+        "2020-09-18",
+        "2020-09-19",
+        "2020-09-20",
+        "2020-09-21",
+        "2020-09-22",
+        "2020-09-23",
+        "2020-09-24",
+        "2020-09-25",
+        "2020-09-26",
+        "2020-09-27",
+        "2020-09-28",
+        "2020-09-29",
+        "2020-09-30",
+        "2020-10-01",
+        "2020-10-02",
+        "2020-10-03",
+        "2020-10-04",
+        "2020-10-05",
+        "2020-10-06",
+        "2020-10-07",
+        "2020-10-08",
+        "2020-10-09",
+        "2020-10-10",
+        "2020-10-11",
+        "2020-10-12",
+        "2020-10-13",
+        "2020-10-14",
+        "2020-10-15",
+        "2020-10-16",
+        "2020-10-17",
+        "2020-10-18",
+        "2020-10-19",
+        "2020-10-20",
+        "2020-10-21",
+        "2020-10-22",
+        "2020-10-23",
+        "2020-10-24",
+        "2020-10-25",
+        "2020-10-26",
+        "2020-10-27",
+        "2020-10-28",
+        "2020-10-29",
+        "2020-10-30",
+        "2020-10-31",
+        "2020-11-01",
+        "2020-11-02",
+        "2020-11-03",
+        "2020-11-04",
+        "2020-11-05",
+        "2020-11-06",
+        "2020-11-07",
+        "2020-11-08",
+        "2020-11-09",
+        "2020-11-10",
+        "2020-11-11",
+        "2020-11-12",
+        "2020-11-13",
+        "2020-11-14",
+        "2020-11-15",
+        "2020-11-16",
+        "2020-11-17",
+        "2020-11-18",
+        "2020-11-19",
+        "2020-11-20",
+        "2020-11-21",
+        "2020-11-22",
+        "2020-11-23",
+        "2020-11-24",
+        "2020-11-25",
+        "2020-11-26",
+        "2020-11-27",
+        "2020-11-28",
+        "2020-11-29",
+        "2020-11-30",
+        "2020-12-01",
+        "2020-12-02",
+        "2020-12-03",
+        "2020-12-04",
+        "2020-12-05",
+        "2020-12-06",
+        "2020-12-07",
+        "2020-12-08",
+        "2020-12-09",
+        "2020-12-10",
+        "2020-12-11",
+        "2020-12-12",
+        "2020-12-13",
+        "2020-12-14",
+        "2020-12-15",
+        "2020-12-16",
+        "2020-12-17",
+        "2020-12-18",
+        "2020-12-19",
+        "2020-12-20",
+        "2020-12-21",
+        "2020-12-22",
+        "2020-12-23",
+        "2020-12-24",
+        "2020-12-25",
+        "2020-12-26",
+        "2020-12-27",
+        "2020-12-28",
+        "2020-12-29",
+        "2020-12-30",
+        "2020-12-31",
+        "2021-01-01",
+        "2021-01-02",
+        "2021-01-03",
+        "2021-01-04",
+        "2021-01-05",
+        "2021-01-06",
+        "2021-01-07",
+        "2021-01-08",
+        "2021-01-09",
+        "2021-01-10",
+        "2021-01-11",
+        "2021-01-12",
+        "2021-01-13",
+        "2021-01-14",
+        "2021-01-15",
+        "2021-01-16",
+        "2021-01-17",
+        "2021-01-18",
+        "2021-01-19",
+        "2021-01-20",
+        "2021-01-21",
+        "2021-01-22",
+        "2021-01-23",
+        "2021-01-24",
+        "2021-01-25",
+        "2021-01-26",
+        "2021-01-27",
+        "2021-01-28",
+        "2021-01-29",
+        "2021-01-30",
+        "2021-01-31",
+        "2021-02-01",
+        "2021-02-02",
+        "2021-02-03",
+        "2021-02-04",
+        "2021-02-05",
+        "2021-02-06",
+        "2021-02-07",
+        "2021-02-08",
+        "2021-02-09",
+        "2021-02-10",
+        "2021-02-11",
+        "2021-02-12",
+        "2021-02-13",
+        "2021-02-14",
+        "2021-02-15",
+        "2021-02-16",
+        "2021-02-17",
+        "2021-02-18",
+        "2021-02-19",
+        "2021-02-20",
+        "2021-02-21",
+        "2021-02-22",
+        "2021-02-23",
+        "2021-02-24",
+        "2021-02-25",
+        "2021-02-26",
+        "2021-02-27",
+        "2021-02-28",
+        "2021-03-01",
+        "2021-03-02",
+        "2021-03-03",
+        "2021-03-04",
+        "2021-03-05",
+        "2021-03-06",
+        "2021-03-07",
+        "2021-03-08",
+        "2021-03-09",
+        "2021-03-10",
+        "2021-03-11",
+        "2021-03-12",
+        "2021-03-13",
+        "2021-03-14",
+        "2021-03-15",
+        "2021-03-16",
+        "2021-03-17",
+        "2021-03-18",
+        "2021-03-19",
+        "2021-03-20",
+        "2021-03-21",
+        "2021-03-22",
+        "2021-03-23",
+        "2021-03-24",
+        "2021-03-25",
+        "2021-03-26",
+        "2021-03-27",
+        "2021-03-28",
+        "2021-03-29",
+        "2021-03-30",
+        "2021-03-31",
+        "2021-04-01",
+        "2021-04-02",
+        "2021-04-03",
+        "2021-04-04",
+        "2021-04-05",
+        "2021-04-06",
+      ];
+      const continents = [
+        "Africa",
+        "Asia",
+        "Europe",
+        "North America",
+        "Oceania",
+        "South America",
+      ];
+      const countries = [
+        "Afghanistan",
+        "Africa",
+        "Albania",
+        "Algeria",
+        "Andorra",
+        "Angola",
+        "Anguilla",
+        "Antigua and Barbuda",
+        "Argentina",
+        "Armenia",
+        "Asia",
+        "Australia",
+        "Austria",
+        "Azerbaijan",
+        "Bahamas",
+        "Bahrain",
+        "Bangladesh",
+        "Barbados",
+        "Belarus",
+        "Belgium",
+        "Belize",
+        "Benin",
+        "Bermuda",
+        "Bhutan",
+        "Bolivia",
+        "Bosnia and Herzegovina",
+        "Botswana",
+        "Brazil",
+        "Brunei",
+        "Bulgaria",
+        "Burkina Faso",
+        "Burundi",
+        "Cambodia",
+        "Cameroon",
+        "Canada",
+        "Cape Verde",
+        "Cayman Islands",
+        "Central African Republic",
+        "Chad",
+        "Chile",
+        "China",
+        "Colombia",
+        "Comoros",
+        "Congo",
+        "Costa Rica",
+        "Cote d'Ivoire",
+        "Croatia",
+        "Cuba",
+        "Cyprus",
+        "Czechia",
+        "Democratic Republic of Congo",
+        "Denmark",
+        "Djibouti",
+        "Dominica",
+        "Dominican Republic",
+        "Ecuador",
+        "Egypt",
+        "El Salvador",
+        "Equatorial Guinea",
+        "Eritrea",
+        "Estonia",
+        "Eswatini",
+        "Ethiopia",
+        "Europe",
+        "European Union",
+        "Faeroe Islands",
+        "Falkland Islands",
+        "Fiji",
+        "Finland",
+        "France",
+        "Gabon",
+        "Gambia",
+        "Georgia",
+        "Germany",
+        "Ghana",
+        "Gibraltar",
+        "Greece",
+        "Greenland",
+        "Grenada",
+        "Guatemala",
+        "Guernsey",
+        "Guinea",
+        "Guinea-Bissau",
+        "Guyana",
+        "Haiti",
+        "Honduras",
+        "Hong Kong",
+        "Hungary",
+        "Iceland",
+        "India",
+        "Indonesia",
+        "International",
+        "Iran",
+        "Iraq",
+        "Ireland",
+        "Isle of Man",
+        "Israel",
+        "Italy",
+        "Jamaica",
+        "Japan",
+        "Jersey",
+        "Jordan",
+        "Kazakhstan",
+        "Kenya",
+        "Kosovo",
+        "Kuwait",
+        "Kyrgyzstan",
+        "Laos",
+        "Latvia",
+        "Lebanon",
+        "Lesotho",
+        "Liberia",
+        "Libya",
+        "Liechtenstein",
+        "Lithuania",
+        "Luxembourg",
+        "Macao",
+        "Madagascar",
+        "Malawi",
+        "Malaysia",
+        "Maldives",
+        "Mali",
+        "Malta",
+        "Marshall Islands",
+        "Mauritania",
+        "Mauritius",
+        "Mexico",
+        "Micronesia (country)",
+        "Moldova",
+        "Monaco",
+        "Mongolia",
+        "Montenegro",
+        "Montserrat",
+        "Morocco",
+        "Mozambique",
+        "Myanmar",
+        "Namibia",
+        "Nepal",
+        "Netherlands",
+        "New Zealand",
+        "Nicaragua",
+        "Niger",
+        "Nigeria",
+        "North America",
+        "North Macedonia",
+        "Northern Cyprus",
+        "Norway",
+        "Oceania",
+        "Oman",
+        "Pakistan",
+        "Palestine",
+        "Panama",
+        "Papua New Guinea",
+        "Paraguay",
+        "Peru",
+        "Philippines",
+        "Poland",
+        "Portugal",
+        "Qatar",
+        "Romania",
+        "Russia",
+        "Rwanda",
+        "Saint Helena",
+        "Saint Kitts and Nevis",
+        "Saint Lucia",
+        "Saint Vincent and the Grenadines",
+        "Samoa",
+        "San Marino",
+        "Sao Tome and Principe",
+        "Saudi Arabia",
+        "Senegal",
+        "Serbia",
+        "Seychelles",
+        "Sierra Leone",
+        "Singapore",
+        "Slovakia",
+        "Slovenia",
+        "Solomon Islands",
+        "Somalia",
+        "South Africa",
+        "South America",
+        "South Korea",
+        "South Sudan",
+        "Spain",
+        "Sri Lanka",
+        "Sudan",
+        "Suriname",
+        "Sweden",
+        "Switzerland",
+        "Syria",
+        "Taiwan",
+        "Tajikistan",
+        "Tanzania",
+        "Thailand",
+        "Timor",
+        "Togo",
+        "Trinidad and Tobago",
+        "Tunisia",
+        "Turkey",
+        "Turks and Caicos Islands",
+        "Uganda",
+        "Ukraine",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States",
+        "Uruguay",
+        "Uzbekistan",
+        "Vanuatu",
+        "Vatican",
+        "Venezuela",
+        "Vietnam",
+        "World",
+        "Yemen",
+        "Zambia",
+        "Zimbabwe",
+      ];
+      /* variables, javascript and D3 functions go here */
+      variables = [
+        "Continent",
+        "Extreme Poverty",
+        "Human Development Index",
+        "Median Age",
+        "Stringency Index",
+      ];
+      variableInfo = {
+        "Extreme Poverty": {
+          name: "Percent of population living in poverty",
+          max: "0%",
+          min: "100%",
+        },
+        "Median Age": {
+          name: "Median age by country",
+          max: "15 years",
+          min: "50 years",
+        },
+        "Human Development Index": {
+          name: "Average achievement in key dimensions of human development",
+          min: "0 (lowest)",
+          max: "1 (highest)",
+        },
+        "Stringency Index": {
+          name: "Composite measure of strictness of covid protocols",
+          min: "0 (lax)",
+          max: "1 (strict)",
+        },
+      };
+      varRanges = {
+        "Extreme Poverty": [0, 78, true],
+        "Human Development Index": [0, 1, false],
+        "Median Age": [15, 50, true],
+        "Stringency Index": [0, 100, false],
+      };
+      getVariableDesc = (d, i) => variableInfo?.[d]?.[i == 0 ? "min" : "max"];
+      var data; // define a container variable to hold your data
+      var dates;
+      var selectedDateIndex = 345;
+      var simulation;
+      var t;
+      var svg;
+      var width;
+      var height;
+      var baselineX;
+      var baselineY;
+      var ringRadius;
+      var increment = 1;
+      var pi = Math.PI;
+      var anchorPointCoords;
+      var slider;
+      var pause;
+      var play;
+      var selectedContinents = [];
+      var selectedCountries = [];
+      var selectedVar = "Continent";
+      var isPlaying = false;
+      var scaleValue = 0.9;
+      var covidMin;
+      var covidMax;
+      initializeGlobals = () => {
+        svgDim = Math.round(window.innerHeight * scaleValue);
+        svg = d3.select("#viz").attr("width", svgDim).attr("height", svgDim);
+        baselineX = svgDim / 2;
+        baselineY = svgDim / 2;
+        ringRadius = baselineX * 0.7;
+        covidCounts = data
+          .map((d) => d.value[selectedDateIndex])
+          .filter((d) => !d.isNull)
+          .map((d) => Number(d.new_cases_smoothed_per_million));
+        covidMin = Math.round(
+          covidCounts.reduce(function (a, b) {
+            return Math.min(a, b);
+          })
+        );
+        covidMax = Math.round(
+          covidCounts.reduce(function (a, b) {
+            return Math.max(a, b);
+          })
+        );
+        d3.select(".sizeMin").text(`${Math.max(0, covidMin)}`);
+        d3.select(".sizeMax").text(`${covidMax}`);
+        anchorPointCoords = getAnchorPoints()
+          .map((angle) => getCoordinates(angle, ringRadius))
+          .map((coords) => [baselineX + coords[0], baselineY - coords[1]]);
+        slider = d3
+          .sliderHorizontal()
+          .min(0)
+          .max(allDates.length)
+          .step(1)
+          .width(svgDim * 0.9 - 40)
+          .height(100)
+          .displayValue(false)
+          .tickValues([])
+          .on("start", () => toggleTimer())
+          .on("end", (val) => {
+            selectedDateIndex = val;
+            toggleTimer();
+          });
+        getSvg(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/resources/pause.svg"
+        ).then((res) => {
+          pause = res.documentElement;
+          d3.select("#toggle").node().appendChild(pause);
+        });
+        getSvg(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/resources/play.svg"
+        ).then((res) => {
+          play = res.documentElement;
+        });
+        d3.select("#slider")
+          .attr("width", svgDim * 0.9)
+          .attr("height", 100)
+          .append("g")
+          .attr("transform", `translate(20,50)`)
+          .call(slider);
+
+        d3.select("#toggle")
+          .attr("width", 20)
+          .attr("height", 20)
+          .attr("fill-opacity", 0.5);
+      };
+      sortByDateAscending = (a, b) => {
+        // Dates will be cast to numbers automagically:
+        return a.dateObj - b.dateObj;
+      };
+      parseDateData = (date) => {
+        values = date[1];
+        valueDates = values.map((item) => item.date);
+        addedDates = allDates.reduce((acc, item) => {
+          if (!valueDates.includes(item)) {
+            return [...acc, { date: item, location: date[0], isNull: true }];
+          }
+          return acc;
+        }, []);
+        combined = [...date[1], ...addedDates];
+        combined = combined.map((data) => ({
+          ...data,
+          dateObj: new Date(data.date),
+        }));
+        combined = combined.sort(sortByDateAscending);
+        return { key: date[0], value: combined };
+      };
+      getSvg = (url, variableName) => {
+        return d3.xml(url, (e, documentFragment) => {
+          return documentFragment.getElementsByTagName("svg")[0];
+        });
+      };
+      getData = () => {
+        d3.csv(
+          "https://raw.githubusercontent.com/taylorrohrich/data_viz_final_project/main/data/parsed_final.csv"
+        ).then((csvdata) => {
+          // rawData = csvdata;
+          // dates =d3.map(data, function(d){return d.roadname;}).keys()
+          data = d3.group(csvdata, (d) => d["location"]);
+          data = d3.map(data, parseDateData);
+          initializeGlobals();
+          draw();
+        });
+      };
+      getCoordinates = (angle, radius) => {
+        x = Math.cos(angle) * radius;
+        y = Math.sin(angle) * radius;
+        return [x, y];
+      };
+
+      getAnchorPoints = () => {
+        anchorPoints = [];
+        startingPoint = pi / 2;
+        for (i = 0; i < 10; i++) {
+          anchorPoints.push(startingPoint);
+          startingPoint -= (2 * pi) / 10;
+        }
+        return anchorPoints;
+      };
+      getSize = (point) => {
+        if (point?.isNull || selectedDateIndex == 0) return 1;
+        return (
+          (5 + (Math.sqrt(Number(point.new_cases_smoothed_per_million)) || 0)) *
+          scaleValue
+        );
+      };
+      getOpacity = (point) => {
+        if (point.isNull) return 0.1;
+        //Check country first
+
+        res = selectedCountries.includes(point.location);
+        if (res) return 1;
+        if (selectedCountries.length) return 0.1;
+        res =
+          selectedContinents.length == 0 ||
+          selectedContinents.includes(point.continent)
+            ? 1
+            : 0.1;
+        return res;
+      };
+      getSpeed = (value) => {
+        increment = Number(value[0]);
+        d3.selectAll(".speedButton").attr("style", (e, i) =>
+          Math.log2(increment) == i
+            ? "color:white;background-color:#e3e3e3"
+            : ""
+        );
+      };
+      getDate = (value) => {
+        let dateIndex = null;
+
+        switch (value) {
+          case "Start":
+            dateIndex = 0;
+            selectedDateIndex = 0;
+            break;
+          case "Beginning of Vaccination":
+            dateIndex = 1;
+            selectedDateIndex = 345;
+            break;
+          case "End":
+            dateIndex = 2;
+            selectedDateIndex = allDates.length - 2;
+            break;
+          default:
+            dateIndex = 0;
+            selectedDateIndex = 0;
+            break;
+        }
+        if (!isPlaying) toggleTimer();
+        d3.selectAll(".dateButton").attr("style", (e, i) =>
+          dateIndex == i ? "color:white;background-color:#e3e3e3" : ""
+        );
+      };
+      getColor = (point) => {
+        color = "#e3e3e3";
+        continent = point.continent;
+        switch (continent) {
+          case "Africa":
+            color = "#6272a4";
+            break;
+          case "Asia":
+            color = "#ff5555";
+            break;
+          case "Europe":
+            color = "#bd93f9";
+            break;
+          case "North America":
+            color = "#ff79c6";
+            break;
+          case "Oceania":
+            color = "#ffb86c";
+            break;
+          case "South America":
+            color = "#50fa7b";
+            break;
+        }
+        return color;
+      };
+      getForceCenter = (point) => {
+        const center = [baselineX, baselineY];
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc == 0) return [center[0], center[1]];
+          angle = pi / 2 - 2 * pi * vacc;
+          coords = getCoordinates(angle, ringRadius * 0.8);
+          return [baselineX + coords[0], baselineY - coords[1]];
+        }
+        return [center[0], center[1]];
+      };
+      getStrength = (point) => {
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc >= 0.01) return 0.2;
+        }
+        return 0.2;
+      };
+      getStrengthCollide = (point) => {
+        if (!point.isNull) {
+          vacc = Math.ceil(Number(point.people_vaccinated_per_hundred)) / 100;
+          if (vacc >= 1) return 0;
+        }
+        return -30;
+      };
+      // variables = [
+      //   "Continent",
+      //   "Poverty Level",
+      //   "Human Development Index",
+      //   "Median Age",
+      //   "Stringency Index",
+      // ];
+      getGradientColor = function (start_color, end_color, percent) {
+        // strip the leading # if it's there
+        start_color = start_color.replace(/^\s*#|\s*$/g, "");
+        end_color = end_color.replace(/^\s*#|\s*$/g, "");
+
+        // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+        if (start_color.length == 3) {
+          start_color = start_color.replace(/(.)/g, "$1$1");
+        }
+
+        if (end_color.length == 3) {
+          end_color = end_color.replace(/(.)/g, "$1$1");
+        }
+
+        // get colors
+        var start_red = parseInt(start_color.substr(0, 2), 16),
+          start_green = parseInt(start_color.substr(2, 2), 16),
+          start_blue = parseInt(start_color.substr(4, 2), 16);
+
+        var end_red = parseInt(end_color.substr(0, 2), 16),
+          end_green = parseInt(end_color.substr(2, 2), 16),
+          end_blue = parseInt(end_color.substr(4, 2), 16);
+
+        // calculate new color
+        var diff_red = end_red - start_red;
+        var diff_green = end_green - start_green;
+        var diff_blue = end_blue - start_blue;
+
+        diff_red = (diff_red * percent + start_red).toString(16).split(".")[0];
+        diff_green = (diff_green * percent + start_green)
+          .toString(16)
+          .split(".")[0];
+        diff_blue = (diff_blue * percent + start_blue)
+          .toString(16)
+          .split(".")[0];
+
+        // ensure 2 digits by color
+        if (diff_red.length == 1) diff_red = "0" + diff_red;
+        if (diff_green.length == 1) diff_green = "0" + diff_green;
+        if (diff_blue.length == 1) diff_blue = "0" + diff_blue;
+
+        return "#" + diff_red + diff_green + diff_blue;
+      };
+
+      getGradient = (point) => {
+        varName = selectedVar.toLowerCase().split(" ").join("_");
+        varVal = Number(point[varName]);
+
+        const [varMin, varMax, isInverse] = varRanges[selectedVar];
+
+        percent = Math.min(Math.max((varVal - varMin) / varMax, 0), 1);
+        color = getGradientColor(
+          "#ff5555",
+          "#50fa7b",
+          isInverse ? 1 - percent : percent
+        );
+        return color;
+      };
+      getFill = (point) => {
+        if (point.isNull) return "#e3e3e3";
+        color = "#e3e3e3";
+        return selectedVar == "Continent"
+          ? getColor(point)
+          : getGradient(point);
+      };
+      getSelectedValues = (context) => {
+        var values = [];
+        selected = d3
+          .select(context) // select the select
+          .selectAll("option:checked") // select the selected values
+          .each(function () {
+            values.push(this.value);
+          }); // for each of those, get its value
+        return values;
+      };
+
+      polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+        var angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+
+        return {
+          x: centerX + radius * Math.cos(angleInRadians),
+          y: centerY + radius * Math.sin(angleInRadians),
+        };
+      };
+
+      describeArc = (x, y, radius, startAngle, endAngle) => {
+        var start = polarToCartesian(x, y, radius, endAngle);
+        var end = polarToCartesian(x, y, radius, startAngle);
+
+        var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+        var d = [
+          "M",
+          start.x,
+          start.y,
+          "A",
+          radius,
+          radius,
+          0,
+          largeArcFlag,
+          0,
+          end.x,
+          end.y,
+        ].join(" ");
+
+        return d;
+      };
+      draw = () => {
+        var legend = d3
+          .select(".legend")
+          .selectAll("div")
+          .data(continents)
+          .join("div")
+          .attr(
+            "style",
+            (d) =>
+              `padding: 5px; margin: 5px; border-radius: 5px; color: white; background-color:${getColor(
+                {
+                  continent: d,
+                }
+              )}`
+          )
+          .text((e) => e);
+
+        console.log(data);
+        d3.selectAll(".speedButton")
+          .filter((e, i) => i == 0)
+          .attr("style", "color:white;background-color:#e3e3e3");
+        d3.selectAll(".dateButton")
+          .filter((e, i) => i == 1)
+          .attr("style", "color:white;background-color:#e3e3e3");
+
+        svg
+          .append("text")
+          .attr("class", "percentVacc")
+          .attr("x", baselineX)
+          .attr("y", baselineY - ringRadius - 40)
+          .attr("text-anchor", "middle")
+          .text("Percent Vaccinated");
+        // svg
+        //   .append("circle")
+        //   .attr("cx", baselineX)
+        //   .attr("cy", baselineY)
+        //   .attr("r", ringRadius)
+        //   .attr("stroke", "#e3e3e3")
+        //   .attr("fill", "#ffffff");
+        svg
+          .append("path")
+          .attr("d", () =>
+            describeArc(baselineX, baselineY, ringRadius, 0, 324)
+          )
+          .attr("stroke", "#e3e3e3")
+          .attr("fill", "#ffffff");
+        svg
+          .selectAll(".anchorPoints")
+          .data([[baselineX, baselineY], ...anchorPointCoords])
+          .join("circle")
+          .attr("cx", (d) => d[0])
+          .attr("cy", (d) => d[1])
+          .attr("r", 20)
+          .attr("class", "anchorPoints")
+          .attr("stroke", "#e3e3e3")
+          .attr("fill", "#ffffff")
+          .attr("fill-opacity", 0.8);
+
+        svg
+          .selectAll(".anchorPointsText")
+          .data([[baselineX, baselineY], ...anchorPointCoords])
+          .join("text")
+          .attr("text-anchor", "middle")
+          .attr("class", "anchorPointsText")
+          .attr("x", (d) => d[0])
+          .attr("y", (d) => d[1] + 4)
+          .text((d, i) => `${i == 0 ? 0 : i == 1 ? 1 : (i - 1) * 10}%`);
+        var simulation = d3
+          .forceSimulation()
+          .force(
+            "x",
+            d3
+              .forceX()
+              .x((d) => getForceCenter(d.value[selectedDateIndex])[0])
+              .strength((d) => getStrength(d.value[selectedDateIndex]))
+          )
+          .force(
+            "y",
+            d3
+              .forceY()
+              .y((d) => getForceCenter(d.value[selectedDateIndex])[1])
+              .strength((d) => getStrength(d.value[selectedDateIndex]))
+          )
+          .force(
+            "collide",
+            d3.forceCollide().radius((d) => getSize(d.value[selectedDateIndex]))
+          )
+          .force(
+            "charge",
+            d3
+              .forceManyBody()
+              .strength((d) => getStrengthCollide(d.value[selectedDateIndex]))
+          );
+        var bubbles = svg
+          .selectAll(".points")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr("r", (d) => getSize(d.value[selectedDateIndex]))
+          .attr("fill", (d) => getFill(d.value[selectedDateIndex]))
+          .attr("fill-opacity", (d) => getOpacity(d.value[selectedDateIndex]));
+        d3.select("body")
+          .append("div")
+          .attr("id", "tooltip")
+          .attr("style", "position: absolute; opacity: 0;width: 200px");
+
+        tooltip = d3.select("#tooltip");
+        tooltip.append("div").attr("id", "tt-header");
+        ttHeader = d3
+          .select("#tt-header")
+          .attr(
+            "style",
+            "display:flex;flex-direction:row; align-items:center;justify-content:space-between"
+          );
+        ttHeader.append("div").attr("id", "tt-header-left").style("flex");
+        ttHeader.append("div").attr("id", "tt-header-right").style("flex");
+        tooltip.append("div").attr("id", "tt-subheader");
+        tooltip.append("div").attr("id", "tt-subheader-1");
+        tooltip.append("div").attr("id", "tt-subheader-2");
+        d3.selectAll(".speedButton").on("click", (e) =>
+          getSpeed(e.target.innerText)
+        );
+        d3.selectAll(".dateButton").on("click", (e) =>
+          getDate(e.target.innerText)
+        );
+        simulation.nodes(data).on("tick", ticked);
+        bubbles.on("mouseover", (e, d) => {
+          setTimeout(() => {
+            d3.select("#tooltip").style("opacity", 0);
+            dataPoint = d.value[selectedDateIndex];
+            if (!dataPoint.isNull) {
+              console.log(d);
+              console.log(e.pageX);
+              console.log(e.pageY);
+              d3.select("#tooltip")
+                .transition()
+                .duration(200)
+                .style("opacity", 1);
+              // d3.select("#tooltip")
+              //   .style("left", e.pageX - 100 + "px")
+              //   .style("top", e.pageY - 80 + "px");
+              d3.select("#tt-header-left").text(d.key);
+              d3.select("#tt-header-right")
+                .text(dataPoint.continent)
+                .style(
+                  "color",
+                  selectedVar == "Continent" ? getFill(dataPoint) : "black"
+                );
+            }
+            d3.select("#tt-subheader").text(
+              `Cases Per Million: ${Math.round(
+                dataPoint.new_cases_smoothed_per_million
+              )}`
+            );
+            d3.select("#tt-subheader-1").text(
+              `Pop. Percent Vaccinated: ${Math.ceil(
+                dataPoint.people_vaccinated_per_hundred
+              )}%`
+            );
+
+            d3.select("#tt-subheader-2")
+              .text(
+                selectedVar == "Continent"
+                  ? ""
+                  : `${selectedVar}: ${Math.round(
+                      dataPoint[selectedVar.toLowerCase().split(" ").join("_")]
+                    )}`
+              )
+              .style("color", getFill(dataPoint));
+          }, 200);
+        });
+
+        bubbles.on("mousemove", (e, d) => {
+          d3.select("#tooltip")
+            .style("left", e.pageX + 75 + "px")
+            .style("top", e.pageY - 50 + "px");
+        });
+        bubbles.on("mouseout", (e, d) => {
+          setTimeout(
+            () =>
+              d3
+                .select("#tooltip")
+                .transition()
+                .duration(200)
+                .style("opacity", 0),
+            200
+          );
+          //d3.select("#tooltip").style("opacity", 0);
+        });
+
+        d3.select("#continentMenu").on("change", function (event) {
+          let values = getSelectedValues(this);
+          selectedContinents = values;
+          selectedCountries = [];
+          d3.select("#countryMenu").selectAll("option").remove();
+          d3.select("#countryMenu")
+            .selectAll("option")
+            .data(countries)
+            .join("option")
+            .text((d) => d);
+          bubbles
+            .filter((d) => !d.value[selectedDateIndex].isNull)
+            .transition()
+            .duration(200)
+            .attr("fill-opacity", (d) =>
+              getOpacity(d.value[selectedDateIndex])
+            );
+        });
+        d3.select("#countryMenu").on("change", function (event) {
+          let values = getSelectedValues(this);
+          selectedCountries = values;
+          selectedContinents = [];
+          d3.select("#continentMenu").selectAll("option").remove();
+          d3.select("#continentMenu")
+            .selectAll("option")
+            .data(continents)
+            .join("option")
+            .text((d) => d);
+          // .attr("selected", (e) => console.log(e));
+          bubbles
+            .filter((d) => !d.value[selectedDateIndex].isNull)
+            .transition()
+            .duration(200)
+            .attr("fill-opacity", (d) =>
+              getOpacity(d.value[selectedDateIndex])
+            );
+        });
+
+        d3.select("#varMenu").on("change", function (event) {
+          let value = getSelectedValues(this)[0];
+          selectedVar = value;
+          bubbles
+            .filter((d) => !d.value[selectedDateIndex].isNull)
+            .transition()
+            .duration(200)
+            .attr("fill", (d) => getFill(d.value[selectedDateIndex]));
+          if (selectedVar == "Continent") {
+            d3.select(".legend").selectAll("div").remove();
+            d3.select(".legend")
+              .selectAll("div")
+              .data(continents)
+              .join("div")
+              .attr(
+                "style",
+                (d) =>
+                  `padding: 5px; margin: 5px; border-radius: 5px; color: white; background-color:${getColor(
+                    {
+                      continent: d,
+                    }
+                  )}`
+              )
+              .text((e) => e);
+            d3.select(".legendDescription").text(selectedVar);
+          } else {
+            d3.select(".legend").selectAll("div").remove();
+            d3.select(".legendDescription").text(
+              selectedVar + ": " + variableInfo?.[selectedVar]?.name
+            );
+            d3.select(".legend")
+              .selectAll("div")
+              .data([
+                0,
+                0,
+                0.05,
+                0.1,
+                0.15,
+                0.2,
+                0.25,
+                0.3,
+                0.35,
+                0.4,
+                0.45,
+                0.5,
+                0.55,
+                0.6,
+                0.65,
+                0.7,
+                0.75,
+                0.8,
+                0.85,
+                0.9,
+                0.95,
+                1,
+                1,
+              ])
+              .join("div")
+              .attr(
+                "style",
+                (d, i) =>
+                  `${
+                    i == 0 || i == 22
+                      ? "padding-left:5px;padding-right: 5px;"
+                      : "width:20px;height:25px;"
+                  }margin-top: 5px; background-color:${
+                    i == 0 || i == 22
+                      ? "white"
+                      : getGradientColor("#ff5555", "#50fa7b", d)
+                  }`
+              )
+              .text((d, i) =>
+                i == 0 || i == 22 ? getVariableDesc(selectedVar, i) : ""
+              );
+          }
+        });
+
+        // create a dropdown select list from all of the states in the data
+        continentSelects = d3
+          .select("#continentMenu")
+          .selectAll("option")
+          .data(continents)
+          .join("option")
+          .text((d) => d);
+        countrySelects = d3
+          .select("#countryMenu")
+          .selectAll("option")
+          .data(countries)
+          .join("option")
+          .text((d) => d);
+        variableSelects = d3
+          .select("#varMenu")
+          .selectAll("option")
+          .data(variables)
+          .join("option")
+          .text((d) => d);
+
+        function ticked(i) {
+          bubbles
+            .attr("cx", function (d) {
+              return d.x;
+            })
+            .attr("cy", function (d) {
+              return d.y;
+            });
+        }
+        timer = () => {
+          return d3.interval(function (elapsed) {
+            if (selectedDateIndex + increment >= allDates.length) {
+              selectedDateIndex = allDates.length - 1;
+            } else {
+              selectedDateIndex += increment;
+            }
+
+            covidCounts = data
+              .map((d) => d.value[selectedDateIndex])
+              .filter((d) => !d.isNull)
+              .map((d) => Number(d.new_cases_smoothed_per_million));
+            covidMin = Math.round(
+              covidCounts.reduce(function (a, b) {
+                return Math.min(a, b);
+              })
+            );
+            covidMax = Math.round(
+              covidCounts.reduce(function (a, b) {
+                return Math.max(a, b);
+              })
+            );
+            d3.select(".sizeMin").text(`${Math.max(0, covidMin)}`);
+            d3.select(".sizeMax").text(`${covidMax}`);
+            updateDate();
+            simulation.alpha(0.5).alphaTarget(0.3).restart();
+
+            simulation.force("x").initialize(data);
+            simulation.force("y").initialize(data);
+            simulation.force("collide").initialize(data);
+            bubbles
+              .transition()
+              .duration(200)
+              .attr("r", (d) => getSize(d.value[selectedDateIndex]))
+              .attr("fill-opacity", (d) =>
+                getOpacity(d.value[selectedDateIndex])
+              )
+              .attr("fill", (d) => getFill(d.value[selectedDateIndex]));
+            //   .attr("fill", function (d) {
+            //     return colorScale(d[year]);
+            //   });
+            svg.selectAll(".anchorPoints").raise();
+            svg.selectAll(".anchorPointsText").raise();
+            svg.select(".percentVacc").raise();
+            slider.value(selectedDateIndex);
+            if (selectedDateIndex == allDates.length - 1) {
+              toggleTimer();
+            }
+          }, 1000);
+        };
+        toggleTimer = () => {
+          if (isPlaying) {
+            t.stop();
+            isPlaying = false;
+          } else {
+            t = timer();
+            isPlaying = true;
+          }
+          toggleButton();
+        };
+        toggleButton = () => {
+          nextIcon = !isPlaying ? play : pause;
+          if (nextIcon) {
+            d3.select("#toggle").html("");
+            d3.select("#toggle")?.node()?.appendChild(nextIcon);
+          }
+        };
+        updateDate = () => {
+          d3.select("#date").text(
+            new Date(allDates[selectedDateIndex]).toDateString()
+          );
+        };
+        toggleTimer();
+        svg.selectAll(".anchorPoints").raise();
+        svg.selectAll(".anchorPointsText").raise();
+        svg.select(".percentVacc").raise();
+      };
+    </script>
+  </head>
+  <body onload="getData()">
+    <div>
+      <div style="display: flex; flex-direction: row">
+        <div style="display: flex; flex-direction: column">
+          <div>
+            <div class="header">The Promise of Vaccines</div>
+            <div class="subheader">
+              The International Resillience After a Year of COVID-19.
+            </div>
+            <div class="name">Created by Taylor Rohrich</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; flex: 1">
+            <div style="margin-top: 20px">
+              <div style="font-size: 18px; font-weight: bold">Legend</div>
+              <div>
+                <div style="margin: 10px" class="legendDescription">
+                  Continent
+                </div>
+                <div
+                  class="legend"
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    align-items: center;
+                  "
+                ></div>
+              </div>
+              <div style="margin: 10px">
+                New Covid Cases Per Million
+                <div
+                  style="
+                    margin: 10px;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                  "
+                >
+                  <div class="sizeMin"></div>
+                  <div class="circ" style="width: 10px; height: 10px"></div>
+                  <div class="circ" style="width: 20px; height: 20px"></div>
+                  <div class="circ" style="width: 30px; height: 30px"></div>
+                  <div class="sizeMax"></div>
+                </div>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+              "
+            >
+              <div style="margin-top: 20px">
+                <div style="font-size: 18px; font-weight: bold">
+                  Filters (CMD-Click to Multiselect)
+                </div>
+                <div
+                  class="filterMenus"
+                  style="display: flex; flex-direction: row; margin: 10px"
+                >
+                  <div>
+                    <div class="menuHeader">Filter Continent</div>
+                    <select multiple id="continentMenu"></select>
+                  </div>
+                  <div style="margin-left: 10px">
+                    <div class="menuHeader">Filter Country</div>
+                    <select multiple id="countryMenu"></select>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top: 20px" class="varMenus">
+                <div style="font-size: 18px; font-weight: bold">Variable</div>
+                <div style="display: flex; flex-direction: row; margin: 10px">
+                  <div>
+                    <div class="menuHeader">Color</div>
+                    <select id="varMenu" style="font-size: 20px"></select>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top: 20px" class="varTime">
+                <div style="font-size: 18px; font-weight: bold">Time</div>
+                <div style="display: flex; flex-direction: row; margin: 10px">
+                  <div>
+                    <div class="menuHeader">Speed</div>
+                    <div style="display: flex; flex-direction: row">
+                      <div class="button speedButton">1x</div>
+                      <div class="button speedButton">2x</div>
+                      <div class="button speedButton">4x</div>
+                      <div class="button speedButton">8x</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: row; margin: 10px">
+                  <div>
+                    <div class="menuHeader">Important Dates</div>
+                    <div style="display: flex; flex-direction: row">
+                      <div class="button dateButton">Start</div>
+                      <div class="button dateButton">
+                        Beginning of Vaccination
+                      </div>
+                      <div class="button dateButton">End</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          style="
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+          "
+        >
+          <svg id="viz" width="0" height="0"></svg>
+        </div>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <div id="date"></div>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            flex: 1;
+          "
+        >
+          <svg
+            id="toggle"
+            onclick="toggleTimer()"
+            style="cursor: pointer"
+            width="0"
+            height="0"
+          ></svg>
+
+          <svg id="slider" width="0" height="0"></svg>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
